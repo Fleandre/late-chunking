@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 import numpy as np
 import torch
@@ -33,11 +33,11 @@ class AbsTaskChunkedRetrieval(AbsTask):
         try:
             self.retrieval_task = getattr(
                 Retrieval,
-                self.metadata_dict['dataset'].get('name', None)
-                or self.metadata_dict.get('name'),
+                self.metadata_dict["dataset"].get("name", None)
+                or self.metadata_dict.get("name"),
             )()
         except:
-            logger.warning('Could not initialize retrieval_task')
+            logger.warning("Could not initialize retrieval_task")
         self.chunking_strategy = chunking_strategy
         self.chunker = Chunker(self.chunking_strategy)
         self.chunked_pooling_enabled = chunked_pooling_enabled
@@ -45,9 +45,9 @@ class AbsTaskChunkedRetrieval(AbsTask):
         self.prune_size = prune_size
         self.model_has_instructions = model_has_instructions
         self.chunking_args = {
-            'chunk_size': chunk_size,
-            'n_sentences': n_sentences,
-            'embedding_model_name': embedding_model_name,
+            "chunk_size": chunk_size,
+            "n_sentences": n_sentences,
+            "embedding_model_name": embedding_model_name,
         }
         self.truncate_max_length = truncate_max_length
 
@@ -66,8 +66,8 @@ class AbsTaskChunkedRetrieval(AbsTask):
         self.retrieval_task.calculate_metadata_metrics()
 
     def evaluate(
-        self, model, split: str = "test", encode_kwargs: dict[str, Any] = {}, **kwargs
-    ) -> dict[str, ScoresDict]:
+        self, model, split: str = "test", encode_kwargs: Dict[str, Any] = {}, **kwargs
+    ) -> Dict[str, ScoresDict]:
         scores: dict[str, ScoresDict] = {}
         hf_subsets = list(self.hf_subsets) if self.is_multilingual else ["default"]
 
@@ -101,17 +101,17 @@ class AbsTaskChunkedRetrieval(AbsTask):
 
     def _truncate_documents(self, corpus):
         for k, v in corpus.items():
-            if 'title' in v:
+            if "title" in v:
                 raise NotImplementedError(
-                    'Currently truncation is only implemented for documents without titles'
+                    "Currently truncation is only implemented for documents without titles"
                 )
             tokens = self.tokenizer(
-                v['text'],
+                v["text"],
                 return_offsets_mapping=True,
                 max_length=self.truncate_max_length,
             )
             last_token_span = tokens.offset_mapping[-2]
-            v['text'] = v['text'][: last_token_span[1]]
+            v["text"] = v["text"][: last_token_span[1]]
         return corpus
 
     def _evaluate_monolingual(
@@ -145,7 +145,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
         else:
             query_ids = list(queries.keys())
             query_texts = [queries[k] for k in query_ids]
-            if hasattr(model, 'encode_queries'):
+            if hasattr(model, "encode_queries"):
                 query_embs = model.encode_queries(query_texts)
             else:
                 query_embs = model.encode(query_texts)
@@ -154,8 +154,8 @@ class AbsTaskChunkedRetrieval(AbsTask):
             corpus_texts = [
                 (
                     f"{corpus[k]['title']} {corpus[k]['text']}"
-                    if 'title' in corpus[k]
-                    else corpus[k]['text']
+                    if "title" in corpus[k]
+                    else corpus[k]["text"]
                 )
                 for k in corpus_ids
             ]
@@ -174,17 +174,17 @@ class AbsTaskChunkedRetrieval(AbsTask):
                     if self.model_has_instructions:
                         instr = model.get_instructions()[1]
                     else:
-                        instr = ''
+                        instr = ""
                     text_inputs = [instr + x[0] for x in inputs]
                     annotations = [x[1] for x in inputs]
                     model_inputs = self.tokenizer(
                         text_inputs,
-                        return_tensors='pt',
+                        return_tensors="pt",
                         padding=True,
                         truncation=True,
                         max_length=8192,
                     )
-                    if model.device.type == 'cuda':
+                    if model.device.type == "cuda":
                         model_inputs = {
                             k: v.to(model.device) for k, v in model_inputs.items()
                         }
@@ -214,13 +214,13 @@ class AbsTaskChunkedRetrieval(AbsTask):
             relevant_docs,
             doc_results,
             [k for k in k_values if k <= max_k],
-            ignore_identical_ids=kwargs.get('ignore_identical_ids', True),
+            ignore_identical_ids=kwargs.get("ignore_identical_ids", True),
         )
         mrr, _ = RetrievalEvaluator.evaluate_custom(
             relevant_docs,
             doc_results,
             [k for k in k_values if k <= max_k],
-            'mrr',
+            "mrr",
         )
         scores = {
             **{f"ndcg_at_{k.split('@')[1]}": v for (k, v) in ndcg.items()},
@@ -270,7 +270,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
         for q, result_chunks in results.items():
             docs = dict()
             for c_id, score in result_chunks.items():
-                d_id = '~'.join(c_id.split('~')[:-1])
+                d_id = "~".join(c_id.split("~")[:-1])
                 if (d_id not in docs) or (score > docs[d_id]):
                     docs[d_id] = float(score)
             doc_results[q] = docs
@@ -287,7 +287,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
     def _apply_chunking(self, corpus, tokenizer):
         chunked_corpus = dict()
         for k, v in corpus.items():
-            text = f"{v['title']} {v['text']}" if 'title' in v else v['text']
+            text = f"{v['title']} {v['text']}" if "title" in v else v["text"]
             current_doc = []
             chunk_annotations = self.chunker.chunk(
                 text,
@@ -300,7 +300,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 text_chunk = tokenizer.decode(
                     tokens.encodings[0].ids[start_token_idx:end_token_idx]
                 )
-                current_doc.append({'text': text_chunk})
+                current_doc.append({"text": text_chunk})
             chunked_corpus[k] = current_doc
         return chunked_corpus
 
@@ -330,7 +330,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
         flattened_corpus = dict()
         for k, li in chunked_corpus.items():
             for i, c in enumerate(li):
-                flattened_corpus[f'{k}~{i}'] = c
+                flattened_corpus[f"{k}~{i}"] = c
 
         return flattened_corpus
 
@@ -369,16 +369,16 @@ class AbsTaskChunkedRetrieval(AbsTask):
 
     @staticmethod
     def _prune(queries, corpus, relevant_docs, prune_size):
-        new_queries = {'test': {}}
-        new_corpus = {'test': {}}
-        new_relevant_docs = {'test': {}}
-        for i, key in enumerate(relevant_docs['test']):
+        new_queries = {"test": {}}
+        new_corpus = {"test": {}}
+        new_relevant_docs = {"test": {}}
+        for i, key in enumerate(relevant_docs["test"]):
             if i >= prune_size:
                 break
-            new_relevant_docs['test'][key] = relevant_docs['test'][key]
-            for x in relevant_docs['test'][key]:
-                new_corpus['test'][x] = corpus['test'][x]
-            new_queries['test'][key] = queries['test'][key]
+            new_relevant_docs["test"][key] = relevant_docs["test"][key]
+            for x in relevant_docs["test"][key]:
+                new_corpus["test"][x] = corpus["test"][x]
+            new_queries["test"][key] = queries["test"][key]
         return new_queries, new_corpus, new_relevant_docs
 
     def _calculate_metrics_from_split(*args, **kwargs):

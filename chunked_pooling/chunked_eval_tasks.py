@@ -1,4 +1,5 @@
 import datasets
+import inspect
 from mteb.abstasks.TaskMetadata import TaskMetadata
 
 from chunked_pooling.mteb_chunked_eval import AbsTaskChunkedRetrieval
@@ -6,22 +7,22 @@ from chunked_pooling.mteb_chunked_eval import AbsTaskChunkedRetrieval
 
 class SciFactChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name='SciFactChunked',
+        name="SciFactChunked",
         dataset={
-            'path': 'mteb/scifact',
-            'revision': '0228b52cf27578f30900b9e5271d331663a030d7',
-            'name': 'SciFact',
+            "path": "mteb/scifact",
+            "revision": "0228b52cf27578f30900b9e5271d331663a030d7",
+            "name": "SciFact",
         },
         description=(
-            'SciFact verifies scientific claims using evidence from the '
-            'research literature containing scientific paper abstracts.'
+            "SciFact verifies scientific claims using evidence from the "
+            "research literature containing scientific paper abstracts."
         ),
-        reference='https://github.com/allenai/scifact',
-        type='Retrieval',
-        category='s2p',
-        eval_splits=['test'],
-        eval_langs=['eng-Latn'],
-        main_score='ndcg_at_10',
+        reference="https://github.com/allenai/scifact",
+        type="Retrieval",
+        category="s2p",
+        eval_splits=["test"],
+        eval_langs=["eng-Latn"],
+        main_score="ndcg_at_10",
         date=None,
         form=None,
         domains=None,
@@ -42,24 +43,24 @@ class SciFactChunked(AbsTaskChunkedRetrieval):
 
 class NarrativeQAChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name='NarrativeQAChunked',
+        name="NarrativeQAChunked",
         dataset={
-            'path': 'narrativeqa',
-            'revision': '2e643e7363944af1c33a652d1c87320d0871c4e4',
-            'name': 'NarrativeQARetrieval',
+            "path": "narrativeqa",
+            "revision": "2e643e7363944af1c33a652d1c87320d0871c4e4",
+            "name": "NarrativeQARetrieval",
         },
-        reference='https://metatext.io/datasets/narrativeqa',
+        reference="https://metatext.io/datasets/narrativeqa",
         description=(
-            'NarrativeQA is a dataset for the task of question answering '
-            'on long narratives. It consists of realistic QA instances '
-            'collected from literature (fiction and non-fiction) '
-            'and movie scripts. '
+            "NarrativeQA is a dataset for the task of question answering "
+            "on long narratives. It consists of realistic QA instances "
+            "collected from literature (fiction and non-fiction) "
+            "and movie scripts. "
         ),
-        type='Retrieval',
-        category='s2p',
-        eval_splits=['test'],
-        eval_langs=['eng-Latn'],
-        main_score='ndcg_at_10',
+        type="Retrieval",
+        category="s2p",
+        eval_splits=["test"],
+        eval_langs=["eng-Latn"],
+        main_score="ndcg_at_10",
         date=None,
         form=None,
         domains=None,
@@ -84,7 +85,7 @@ class NFCorpusChunked(AbsTaskChunkedRetrieval):
         dataset={
             "path": "mteb/nfcorpus",
             "revision": "ec0fa4fe99da2ff19ca1214b7966684033a58814",
-            'name': 'NFCorpus',
+            "name": "NFCorpus",
         },
         description="NFCorpus: A Full-Text Learning to Rank Dataset for Medical Information Retrieval",
         reference="https://www.cl.uni-heidelberg.de/statnlpgroup/nfcorpus/",
@@ -155,7 +156,7 @@ class FiQA2018Chunked(AbsTaskChunkedRetrieval):
         dataset={
             "path": "mteb/fiqa",
             "revision": "27a168819829fe9bcd655c2df245fb19452e8e06",
-            'name': 'FiQA2018',
+            "name": "FiQA2018",
         },
         type="Retrieval",
         category="s2p",
@@ -182,23 +183,23 @@ class FiQA2018Chunked(AbsTaskChunkedRetrieval):
 
 class TRECCOVIDChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name='TRECCOVIDChunked',
+        name="TRECCOVIDChunked",
         description=(
-            'TRECCOVID is an ad-hoc search challenge based on the '
-            'COVID-19 dataset containing scientific articles '
-            'related to the COVID-19 pandemic.'
+            "TRECCOVID is an ad-hoc search challenge based on the "
+            "COVID-19 dataset containing scientific articles "
+            "related to the COVID-19 pandemic."
         ),
-        reference='https://ir.nist.gov/covidSubmit/index.html',
+        reference="https://ir.nist.gov/covidSubmit/index.html",
         dataset={
-            'path': 'mteb/trec-covid',
-            'revision': 'bb9466bac8153a0349341eb1b22e06409e78ef4e',
-            'name': 'TRECCOVID',
+            "path": "mteb/trec-covid",
+            "revision": "bb9466bac8153a0349341eb1b22e06409e78ef4e",
+            "name": "TRECCOVID",
         },
-        type='Retrieval',
-        category='s2p',
-        eval_splits=['test'],
-        eval_langs=['eng-Latn'],
-        main_score='ndcg_at_10',
+        type="Retrieval",
+        category="s2p",
+        eval_splits=["test"],
+        eval_langs=["eng-Latn"],
+        main_score="ndcg_at_10",
         date=None,
         form=None,
         domains=None,
@@ -279,7 +280,7 @@ class LEMBWikimQARetrievalChunked(AbsTaskChunkedRetrieval):
             return
 
         dataset_dict = {**self.metadata.dataset}
-        dataset_dict['name'] = '2wikimqa'
+        dataset_dict["name"] = "2wikimqa"
 
         query_list = datasets.load_dataset(**dataset_dict)["queries"]
         queries = {row["qid"]: row["text"] for row in query_list}
@@ -454,3 +455,12 @@ class LEMBNeedleRetrievalChunked(AbsTaskChunkedRetrieval):
             self.relevant_docs[split] = qrels
 
         self.data_loaded = True
+
+
+def get_eval_tasks():
+    classes_dict = {}
+    current_module = globals()
+    for name, obj in current_module.items():
+        if inspect.isclass(obj) and obj.__module__ == __name__:
+            classes_dict[name] = obj
+    return classes_dict
