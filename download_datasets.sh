@@ -37,6 +37,17 @@ DATASETS=(
     "maidalun1020/CrosslingualRetrievalFinanceZh2En"
     "maidalun1020/CrosslingualRetrievalPaperZh2En"
     "maidalun1020/CrosslingualRetrievalWikiZh2En"
+    "maidalun1020/CrosslingualRetrievalQasEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalLawEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalBooksEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalFinanceEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalPaperEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalWikiEn2Zh-qrels"
+    "maidalun1020/CrosslingualRetrievalLawZh2En-qrels"
+    "maidalun1020/CrosslingualRetrievalBooksZh2En-qrels"
+    "maidalun1020/CrosslingualRetrievalFinanceZh2En-qrels"
+    "maidalun1020/CrosslingualRetrievalPaperZh2En-qrels"
+    "maidalun1020/CrosslingualRetrievalWikiZh2En-qrels"
 )
 
 # 定义并行作业数量，可以根据你的系统配置调整

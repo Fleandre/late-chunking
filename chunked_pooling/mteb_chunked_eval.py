@@ -7,6 +7,7 @@ from mteb.abstasks import AbsTask
 from mteb.evaluation.evaluators import RetrievalEvaluator
 from mteb.load_results.mteb_results import ScoresDict
 from mteb.tasks import Retrieval
+import chunked_pooling.cross_lang_retrieval as CrossLangRetrieval
 from tqdm import tqdm
 
 from chunked_pooling import chunked_pooling
@@ -37,7 +38,19 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 or self.metadata_dict.get("name"),
             )()
         except:
-            logger.warning("Could not initialize retrieval_task")
+            logger.warning(
+                "Could not initialize retrieval_task from official mteb tasks. Trying cross_lang_retrieval"
+            )
+            try:
+                self.retrieval_task = getattr(
+                    CrossLangRetrieval,
+                    self.metadata_dict["dataset"].get("name", None)
+                    or self.metadata_dict.get("name"),
+                )()
+            except:
+                logger.warning(
+                    "Could not initialize retrieval_task from Netease CrossLangRetrieval. Please make sure that the task name is correct."
+                )
         self.chunking_strategy = chunking_strategy
         self.chunker = Chunker(self.chunking_strategy)
         self.chunked_pooling_enabled = chunked_pooling_enabled

@@ -9,7 +9,7 @@ from chunked_pooling.wrappers import load_model
 DEFAULT_CHUNKING_STRATEGY = "fixed"
 DEFAULT_CHUNK_SIZE = 256
 DEFAULT_N_SENTENCES = 5
-BATCH_SIZE = 16
+BATCH_SIZE = 1
 
 
 @click.command()
@@ -27,7 +27,7 @@ BATCH_SIZE = 16
     "--task-name", default="SciFactChunked", help="The evaluation task to perform."
 )
 @click.option(
-    "--eval-split", default="test", help="The name of the evaluation split in the task."
+    "--eval-split", default="None", help="The name of the evaluation split in the task."
 )
 @click.option(
     "--chunking-model",
@@ -100,6 +100,11 @@ def main(
             )
         ]
 
+        if task_name == "ALL" or eval_split == "None":
+            eval_splits = tasks[0].eval_splits
+        else:
+            eval_splits = [eval_split]
+
         evaluation = MTEB(
             tasks=tasks,
             chunked_pooling_enabled=True,
@@ -110,7 +115,7 @@ def main(
         evaluation.run(
             model,
             output_folder="results-chunked-pooling",
-            eval_splits=[eval_split],
+            eval_splits=eval_splits,
             overwrite_results=True,
             batch_size=BATCH_SIZE,
             encode_kwargs={"batch_size": BATCH_SIZE},
@@ -137,7 +142,7 @@ def main(
         evaluation.run(
             model,
             output_folder="results-normal-pooling",
-            eval_splits=[eval_split],
+            eval_splits=eval_splits,
             overwrite_results=True,
             batch_size=BATCH_SIZE,
             encode_kwargs={"batch_size": BATCH_SIZE},
