@@ -9,6 +9,7 @@ from mteb.load_results.mteb_results import ScoresDict
 from mteb.tasks import Retrieval
 import chunked_pooling.cross_lang_retrieval as CrossLangRetrieval
 from tqdm import tqdm
+import heapq
 
 from chunked_pooling import chunked_pooling
 from chunked_pooling.chunking import Chunker
@@ -271,19 +272,32 @@ class AbsTaskChunkedRetrieval(AbsTask):
         scores["main_score"] = scores[self.metadata.main_score]
 
     def get_results(self, chunk_id_list, k_values, query_ids, similarity_matrix):
+        import time
+
+        start = time.time()
+
         results = {}
+        max_k = max(k_values)
+
+        chunk_id_array = np.array(chunk_id_list)
+        similarity_matrix = np.array(similarity_matrix)
+
         for i, query_id in enumerate(query_ids):
-            query_results = {}
-            for idx, score in enumerate(similarity_matrix[i]):
-                chunk_id = chunk_id_list[idx]
-                query_results[chunk_id] = score
-            # Sort results by score and only keep the top k scores
-            sorted_query_results = dict(
-                sorted(query_results.items(), key=lambda item: item[1], reverse=True)[
-                    : max(k_values)
-                ]
-            )
+            # 获取第 i 个查询的相似度得分
+            scores = similarity_matrix[i]
+
+            # 使用 argsort 获取按得分排序的索引，取前 max_k 个
+            # argsort 排序索引，取前 max_k 个 (从大到小)
+            top_k_indices = np.argsort(scores)[-max_k:][::-1]
+
+            # 提取 top_k 的 chunk_ids 和对应的 scores
+            top_k_chunk_ids = chunk_id_array[top_k_indices]
+            top_k_scores = scores[top_k_indices]
+
+            sorted_query_results = dict(zip(top_k_chunk_ids, top_k_scores))
             results[query_id] = sorted_query_results
+
+        print("Time taken to get results: ", (time.time() - start) * 1000, " ms")
         return results
 
     def flatten_corpus_embs(self, corpus_embs, corpus_ids):
