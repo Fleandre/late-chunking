@@ -205,6 +205,8 @@ class AbsTaskChunkedRetrieval(AbsTask):
             doc_to_chunk,
             flattened_corpus_embs,
         ) = self.flatten_corpus_embs(corpus_embs, corpus_ids)
+
+        # TODO: 确认一下相似度矩阵是不是需要切换到cosine_similarity
         similarity_matrix = np.dot(query_embs, flattened_corpus_embs.T)
         results = self.get_results(
             chunk_id_list, k_values, query_ids, similarity_matrix
@@ -279,21 +281,19 @@ class AbsTaskChunkedRetrieval(AbsTask):
         results = {}
         max_k = max(k_values)
 
+        # 将输入数据转换为 NumPy 数组
         chunk_id_array = np.array(chunk_id_list)
         similarity_matrix = np.array(similarity_matrix)
 
+        # 批量处理，获取前 max_k 个相似度最高的索引
+        top_k_indices = np.argsort(similarity_matrix, axis=1)[:, -max_k:][:, ::-1]
+
         for i, query_id in enumerate(query_ids):
-            # 获取第 i 个查询的相似度得分
-            scores = similarity_matrix[i]
-
-            # 使用 argsort 获取按得分排序的索引，取前 max_k 个
-            # argsort 排序索引，取前 max_k 个 (从大到小)
-            top_k_indices = np.argsort(scores)[-max_k:][::-1]
-
             # 提取 top_k 的 chunk_ids 和对应的 scores
-            top_k_chunk_ids = chunk_id_array[top_k_indices]
-            top_k_scores = scores[top_k_indices]
+            top_k_chunk_ids = chunk_id_array[top_k_indices[i]]
+            top_k_scores = similarity_matrix[i, top_k_indices[i]]
 
+            # 将结果存储在字典中
             sorted_query_results = dict(zip(top_k_chunk_ids, top_k_scores))
             results[query_id] = sorted_query_results
 
