@@ -285,13 +285,20 @@ class AbsTaskChunkedRetrieval(AbsTask):
         chunk_id_array = np.array(chunk_id_list)
         similarity_matrix = np.array(similarity_matrix)
 
-        # 批量处理，获取前 max_k 个相似度最高的索引
-        top_k_indices = np.argsort(similarity_matrix, axis=1)[:, -max_k:][:, ::-1]
+        # 预计算所有行的 top-k 索引
+        top_k_indices = np.argpartition(similarity_matrix, -max_k, axis=1)[:, -max_k:]
 
         for i, query_id in enumerate(query_ids):
-            # 提取 top_k 的 chunk_ids 和对应的 scores
-            top_k_chunk_ids = chunk_id_array[top_k_indices[i]]
-            top_k_scores = similarity_matrix[i, top_k_indices[i]]
+            scores = similarity_matrix[i]
+
+            # 获取当前行的 top-k 索引并进行排序
+            sorted_top_k_indices = top_k_indices[i][
+                np.argsort(scores[top_k_indices[i]])[::-1]
+            ]
+
+            # 提取 top-k 的 chunk_ids 和对应的 scores
+            top_k_chunk_ids = chunk_id_array[sorted_top_k_indices]
+            top_k_scores = scores[sorted_top_k_indices]
 
             # 将结果存储在字典中
             sorted_query_results = dict(zip(top_k_chunk_ids, top_k_scores))
