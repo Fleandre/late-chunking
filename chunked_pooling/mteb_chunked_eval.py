@@ -21,7 +21,6 @@ class AbsTaskChunkedRetrieval(AbsTask):
     def __init__(
         self,
         chunking_strategy: str = None,
-        chunk_method: str = None,
         tokenizer: Optional[Any] = None,
         prune_size: Optional[int] = None,
         chunk_size: Optional[int] = None,
@@ -54,7 +53,6 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 )
         self.chunking_strategy = chunking_strategy
         self.chunker = Chunker(self.chunking_strategy)
-        self.chunk_method = chunk_method
         self.tokenizer = tokenizer
         self.prune_size = prune_size
         self.model_has_instructions = model_has_instructions
@@ -128,8 +126,9 @@ class AbsTaskChunkedRetrieval(AbsTask):
             v["text"] = v["text"][: last_token_span[1]]
         return corpus
 
-    def fixed_size_chunking(self, model, corpus, queries, encode_kwargs=None, **kwargs):
-        corpus = self._apply_chunking(corpus, self.tokenizer)
+    def _encode_and_retrieve(
+        self, model, corpus, queries, encode_kwargs=None, **kwargs
+    ):
         max_chunks = max([len(x) for x in corpus.values()])
         corpus = self._flatten_chunks(corpus)
         k_values = self._calculate_k_values(max_chunks)
@@ -227,25 +226,20 @@ class AbsTaskChunkedRetrieval(AbsTask):
         if self.truncate_max_length:
             corpus = self._truncate_documents(corpus)
 
-        # split corpus into chunks
-        if self.chunk_method == "fixed_size_chunking":
-            results, max_k, k_values = self.fixed_size_chunking(
-                model, corpus, queries, encode_kwargs=encode_kwargs, **kwargs
-            )
-        elif self.chunk_method == "recursive_chunking":
-            pass
-        elif self.chunk_method == "layout_aware_chunking":
-            pass
-        elif self.chunk_method == "semantic_chunking":
-            pass
-        elif self.chunk_method == "late_chunking":
+        # 按策略切分
+        if self.chunking_strategy == "late_chunking":
             results, max_k, k_values = self.late_chunking(
                 model, corpus, queries, batch_size
             )
-            pass
         else:
-            raise ValueError(f"Unknown chunk method {self.chunk_method}")
+            # split corpus into chunks
+            corpus = self._apply_chunking(corpus, self.tokenizer)
 
+            results, max_k, k_values = self._encode_and_retrieve(
+                model, corpus, queries, encode_kwargs, **kwargs
+            )
+
+        # 计算召回指标
         doc_results = self.get_doc_results(results)
 
         ndcg, _map, recall, precision, _ = RetrievalEvaluator.evaluate(
@@ -341,23 +335,25 @@ class AbsTaskChunkedRetrieval(AbsTask):
         return k_values
 
     def _apply_chunking(self, corpus, tokenizer):
+        import time
+
+        start = time.time()
         chunked_corpus = dict()
         for k, v in corpus.items():
             text = f"{v['title']} {v['text']}" if "title" in v else v["text"]
             current_doc = []
-            chunk_annotations = self.chunker.chunk(
+            chunk_annotations_by_char = self.chunker.chunk(
                 text,
                 tokenizer,
                 chunking_strategy=self.chunking_strategy,
                 **self.chunking_args,
+                use_token_index=False,  # 直接获取按照char的字符统计的chunk分割点
             )
-            tokens = tokenizer.encode_plus(text, add_special_tokens=False)
-            for start_token_idx, end_token_idx in chunk_annotations:
-                text_chunk = tokenizer.decode(
-                    tokens.encodings[0].ids[start_token_idx:end_token_idx]
-                )
+            for start_token_idx, end_token_idx in chunk_annotations_by_char:
+                text_chunk = text[start_token_idx:end_token_idx]
                 current_doc.append({"text": text_chunk})
             chunked_corpus[k] = current_doc
+        print("Time taken to chunk: ", (time.time() - start) * 1000, " ms")
         return chunked_corpus
 
     def _calculate_annotations(self, model, corpus_texts):
@@ -367,13 +363,19 @@ class AbsTaskChunkedRetrieval(AbsTask):
             n_instruction_tokens = len(instr_tokens[0])
         else:
             n_instruction_tokens = 0
+        """
+            late chunking先计算每个token embedding再做融合, token embedding融合采用固定长度的方式
+            TODO: 这里原来的实现可以根据chunking strategy来选择chunking, 但因为我们把late chunking
+            融合进了strategy, 所以暂时先固定死fixed
+        """
         chunk_annotations = [
             self._extend_special_tokens(
                 self.chunker.chunk(
                     text,
                     self.tokenizer,
-                    chunking_strategy=self.chunking_strategy,
+                    chunking_strategy="fixed_token",
                     **self.chunking_args,
+                    use_token_index=True,
                 ),
                 n_instruction_tokens=n_instruction_tokens,
             )

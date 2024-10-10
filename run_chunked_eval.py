@@ -86,75 +86,56 @@ def main(
 
         tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-        chunking_args = {
-            "chunk_size": chunk_size,
-            "n_sentences": n_sentences,
-            "chunking_strategy": strategy,
-            "model_has_instructions": has_instructions,
-            "embedding_model_name": chunking_model if chunking_model else model_name,
-        }
-
         if torch.cuda.is_available():
             model = model.cuda()
 
         model.eval()
 
-        # Evaluate with late chunking
-        tasks = [
-            task_cls(
-                chunk_method="late_chunking",
+        # 遍历所有chunking策略
+        strategies = (
+            ["fixed", "sentence", "late_chunking"] if strategy == "ALL" else [strategy]
+        )
+        for strategy in strategies:
+            chunking_args = {
+                "chunk_size": chunk_size,
+                "n_sentences": n_sentences,
+                "chunking_strategy": strategy,
+                "model_has_instructions": has_instructions,
+                "embedding_model_name": (
+                    chunking_model if chunking_model else model_name
+                ),
+            }
+
+            # Evaluate
+            tasks = [
+                task_cls(
+                    tokenizer=tokenizer,
+                    prune_size=None,
+                    truncate_max_length=truncate_max_length,
+                    **chunking_args,
+                )
+            ]
+
+            eval_splits = (
+                tasks[0].eval_splits
+                if task_name == "ALL" or eval_split == "None"
+                else [eval_split]
+            )
+
+            evaluation = MTEB(
+                tasks=tasks,
                 tokenizer=tokenizer,
                 prune_size=None,
-                truncate_max_length=truncate_max_length,
                 **chunking_args,
             )
-        ]
-
-        if task_name == "ALL" or eval_split == "None":
-            eval_splits = tasks[0].eval_splits
-        else:
-            eval_splits = [eval_split]
-
-        evaluation = MTEB(
-            tasks=tasks,
-            tokenizer=tokenizer,
-            prune_size=None,
-            **chunking_args,
-        )
-        evaluation.run(
-            model,
-            output_folder="results-chunked-pooling",
-            eval_splits=eval_splits,
-            overwrite_results=True,
-            batch_size=BATCH_SIZE,
-            encode_kwargs={"batch_size": BATCH_SIZE},
-        )
-
-        # Encode without late chunking
-        tasks = [
-            task_cls(
-                chunk_method="fixed_size_chunking",
-                tokenizer=tokenizer,
-                prune_size=None,
-                truncate_max_length=truncate_max_length,
-                **chunking_args,
+            evaluation.run(
+                model,
+                output_folder=f"results-{strategy}",
+                eval_splits=eval_splits,
+                overwrite_results=True,
+                batch_size=BATCH_SIZE,
+                encode_kwargs={"batch_size": BATCH_SIZE},
             )
-        ]
-
-        evaluation = MTEB(
-            tasks=tasks,
-            tokenizer=tokenizer,
-            prune_size=None,
-            **chunking_args,
-        )
-        evaluation.run(
-            model,
-            output_folder="results-normal-pooling",
-            eval_splits=eval_splits,
-            overwrite_results=True,
-            batch_size=BATCH_SIZE,
-            encode_kwargs={"batch_size": BATCH_SIZE},
-        )
 
 
 if __name__ == "__main__":
