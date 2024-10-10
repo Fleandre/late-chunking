@@ -103,7 +103,6 @@ class ClimateFEVERChunked(AbsTaskChunkedRetrieval):
 #     def __init__(self, **kwargs):
 #         super().__init__(**kwargs)
 
-
 class DBPediaChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
         name="DBPediaChunked",

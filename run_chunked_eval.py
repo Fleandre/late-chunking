@@ -10,6 +10,7 @@ DEFAULT_CHUNKING_STRATEGY = "fixed"
 DEFAULT_CHUNK_SIZE = 256
 DEFAULT_N_SENTENCES = 5
 BATCH_SIZE = 1
+SKIP_EVAL_TASKS = ["ClimateFEVERChunked", "DBPediaChunked", "FEVERChunked"]
 
 
 @click.command()
@@ -70,6 +71,8 @@ def main(
         task_clses = [task_clses[task_name]]
     else:
         task_clses = list(task_clses.values())
+        # 排除部分不测试的数据集
+        task_clses = {k: v for k, v in task_clses.items() if k not in SKIP_EVAL_TASKS}
 
     for task_cls in task_clses:
         model, has_instructions = load_model(model_name)
@@ -92,7 +95,7 @@ def main(
         # Evaluate with late chunking
         tasks = [
             task_cls(
-                chunked_pooling_enabled=True,
+                chunk_method="late_chunking",
                 tokenizer=tokenizer,
                 prune_size=None,
                 truncate_max_length=truncate_max_length,
@@ -107,7 +110,6 @@ def main(
 
         evaluation = MTEB(
             tasks=tasks,
-            chunked_pooling_enabled=True,
             tokenizer=tokenizer,
             prune_size=None,
             **chunking_args,
@@ -124,7 +126,7 @@ def main(
         # Encode without late chunking
         tasks = [
             task_cls(
-                chunked_pooling_enabled=False,
+                chunk_method="fixed_size_chunking",
                 tokenizer=tokenizer,
                 prune_size=None,
                 truncate_max_length=truncate_max_length,
@@ -134,7 +136,6 @@ def main(
 
         evaluation = MTEB(
             tasks=tasks,
-            chunked_pooling_enabled=False,
             tokenizer=tokenizer,
             prune_size=None,
             **chunking_args,

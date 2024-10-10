@@ -20,7 +20,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
     def __init__(
         self,
         chunking_strategy: str = None,
-        chunked_pooling_enabled: bool = False,
+        chunk_method: str = None,
         tokenizer: Optional[Any] = None,
         prune_size: Optional[int] = None,
         chunk_size: Optional[int] = None,
@@ -53,7 +53,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 )
         self.chunking_strategy = chunking_strategy
         self.chunker = Chunker(self.chunking_strategy)
-        self.chunked_pooling_enabled = chunked_pooling_enabled
+        self.chunk_method = chunk_method
         self.tokenizer = tokenizer
         self.prune_size = prune_size
         self.model_has_instructions = model_has_instructions
@@ -127,6 +127,89 @@ class AbsTaskChunkedRetrieval(AbsTask):
             v["text"] = v["text"][: last_token_span[1]]
         return corpus
 
+    def fixed_size_chunking(self, model, corpus, queries, encode_kwargs=None, **kwargs):
+        corpus = self._apply_chunking(corpus, self.tokenizer)
+        max_chunks = max([len(x) for x in corpus.values()])
+        corpus = self._flatten_chunks(corpus)
+        k_values = self._calculate_k_values(max_chunks)
+        # determine the maximum number of documents to consider in a ranking
+        max_k = int(max(k_values) / max_chunks)
+        retriever = RetrievalEvaluator(
+            model,
+            k_values=k_values,
+            encode_kwargs=(encode_kwargs or dict()),
+            **kwargs,
+        )
+        results = retriever(corpus, queries)
+        return results, max_k, k_values
+
+    def late_chunking(self, model, corpus, queries, batch_size=1):
+        query_ids = list(queries.keys())
+        query_texts = [queries[k] for k in query_ids]
+        if hasattr(model, "encode_queries"):
+            query_embs = model.encode_queries(query_texts)
+        else:
+            query_embs = model.encode(query_texts)
+
+        corpus_ids = list(corpus.keys())
+        corpus_texts = [
+            (
+                f"{corpus[k]['title']} {corpus[k]['text']}"
+                if "title" in corpus[k]
+                else corpus[k]["text"]
+            )
+            for k in corpus_ids
+        ]
+
+        chunk_annotations = self._calculate_annotations(model, corpus_texts)
+
+        corpus_embs = []
+        with torch.no_grad():
+            for inputs in tqdm(
+                self._batch_inputs(
+                    list(zip(corpus_texts, chunk_annotations)),
+                    batch_size=batch_size,
+                ),
+                total=(len(corpus_texts) // batch_size),
+            ):
+                if self.model_has_instructions:
+                    instr = model.get_instructions()[1]
+                else:
+                    instr = ""
+                text_inputs = [instr + x[0] for x in inputs]
+                annotations = [x[1] for x in inputs]
+                model_inputs = self.tokenizer(
+                    text_inputs,
+                    return_tensors="pt",
+                    padding=True,
+                    truncation=True,
+                    max_length=8192,
+                )
+                if model.device.type == "cuda":
+                    model_inputs = {
+                        k: v.to(model.device) for k, v in model_inputs.items()
+                    }
+                model_outputs = model(**model_inputs)
+                output_embs = chunked_pooling(
+                    model_outputs, annotations, max_length=8192
+                )
+                corpus_embs.extend(output_embs)
+
+        max_chunks = max([len(x) for x in corpus_embs])
+        k_values = self._calculate_k_values(max_chunks)
+        # determine the maximum number of documents to consider in a ranking
+        max_k = int(max(k_values) / max_chunks)
+        (
+            chunk_id_list,
+            doc_to_chunk,
+            flattened_corpus_embs,
+        ) = self.flatten_corpus_embs(corpus_embs, corpus_ids)
+        similarity_matrix = np.dot(query_embs, flattened_corpus_embs.T)
+        results = self.get_results(
+            chunk_id_list, k_values, query_ids, similarity_matrix
+        )
+        return results, max_k, k_values
+
     def _evaluate_monolingual(
         self,
         model,
@@ -140,86 +223,25 @@ class AbsTaskChunkedRetrieval(AbsTask):
     ):
         if self.truncate_max_length:
             corpus = self._truncate_documents(corpus)
+
         # split corpus into chunks
-        if not self.chunked_pooling_enabled:
-            corpus = self._apply_chunking(corpus, self.tokenizer)
-            max_chunks = max([len(x) for x in corpus.values()])
-            corpus = self._flatten_chunks(corpus)
-            k_values = self._calculate_k_values(max_chunks)
-            # determine the maximum number of documents to consider in a ranking
-            max_k = int(max(k_values) / max_chunks)
-            retriever = RetrievalEvaluator(
-                model,
-                k_values=k_values,
-                encode_kwargs=(encode_kwargs or dict()),
-                **kwargs,
+        if self.chunk_method == "fixed_size_chunking":
+            results, max_k, k_values = self.fixed_size_chunking(
+                model, corpus, queries, encode_kwargs=encode_kwargs, **kwargs
             )
-            results = retriever(corpus, queries)
+        elif self.chunk_method == "recursive_chunking":
+            pass
+        elif self.chunk_method == "layout_aware_chunking":
+            pass
+        elif self.chunk_method == "semantic_chunking":
+            pass
+        elif self.chunk_method == "late_chunking":
+            results, max_k, k_values = self.late_chunking(
+                model, corpus, queries, batch_size
+            )
+            pass
         else:
-            query_ids = list(queries.keys())
-            query_texts = [queries[k] for k in query_ids]
-            if hasattr(model, "encode_queries"):
-                query_embs = model.encode_queries(query_texts)
-            else:
-                query_embs = model.encode(query_texts)
-
-            corpus_ids = list(corpus.keys())
-            corpus_texts = [
-                (
-                    f"{corpus[k]['title']} {corpus[k]['text']}"
-                    if "title" in corpus[k]
-                    else corpus[k]["text"]
-                )
-                for k in corpus_ids
-            ]
-
-            chunk_annotations = self._calculate_annotations(model, corpus_texts)
-
-            corpus_embs = []
-            with torch.no_grad():
-                for inputs in tqdm(
-                    self._batch_inputs(
-                        list(zip(corpus_texts, chunk_annotations)),
-                        batch_size=batch_size,
-                    ),
-                    total=(len(corpus_texts) // batch_size),
-                ):
-                    if self.model_has_instructions:
-                        instr = model.get_instructions()[1]
-                    else:
-                        instr = ""
-                    text_inputs = [instr + x[0] for x in inputs]
-                    annotations = [x[1] for x in inputs]
-                    model_inputs = self.tokenizer(
-                        text_inputs,
-                        return_tensors="pt",
-                        padding=True,
-                        truncation=True,
-                        max_length=8192,
-                    )
-                    if model.device.type == "cuda":
-                        model_inputs = {
-                            k: v.to(model.device) for k, v in model_inputs.items()
-                        }
-                    model_outputs = model(**model_inputs)
-                    output_embs = chunked_pooling(
-                        model_outputs, annotations, max_length=8192
-                    )
-                    corpus_embs.extend(output_embs)
-
-            max_chunks = max([len(x) for x in corpus_embs])
-            k_values = self._calculate_k_values(max_chunks)
-            # determine the maximum number of documents to consider in a ranking
-            max_k = int(max(k_values) / max_chunks)
-            (
-                chunk_id_list,
-                doc_to_chunk,
-                flattened_corpus_embs,
-            ) = self.flatten_corpus_embs(corpus_embs, corpus_ids)
-            similarity_matrix = np.dot(query_embs, flattened_corpus_embs.T)
-            results = self.get_results(
-                chunk_id_list, k_values, query_ids, similarity_matrix
-            )
+            raise ValueError(f"Unknown chunk method {self.chunk_method}")
 
         doc_results = self.get_doc_results(results)
 
