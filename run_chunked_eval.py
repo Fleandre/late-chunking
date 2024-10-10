@@ -10,7 +10,12 @@ DEFAULT_CHUNKING_STRATEGY = "fixed"
 DEFAULT_CHUNK_SIZE = 256
 DEFAULT_N_SENTENCES = 5
 BATCH_SIZE = 1
-SKIP_EVAL_TASKS = ["ClimateFEVERChunked", "DBPediaChunked", "FEVERChunked"]
+SKIP_EVAL_TASKS = [
+    "ClimateFEVERChunked",
+    "DBPediaChunked",
+    "FEVERChunked",
+    "HotpotQAChunked",
+]
 
 
 @click.command()
@@ -72,7 +77,9 @@ def main(
     else:
         task_clses = list(task_clses.values())
         # 排除部分不测试的数据集
-        task_clses = {k: v for k, v in task_clses.items() if k not in SKIP_EVAL_TASKS}
+        task_clses = [
+            task for task in task_clses if task.__name__ not in SKIP_EVAL_TASKS
+        ]
 
     for task_cls in task_clses:
         model, has_instructions = load_model(model_name)
