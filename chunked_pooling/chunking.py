@@ -139,7 +139,6 @@ class Chunker:
         if self.langchain_embed_model is None:
             self._setup_semantic_chunking(embedding_model_name)
 
-        # Get semantic nodes
         text_chunks = self.langchain_splitter.split_text(text)
 
         chunk_spans_by_char = []

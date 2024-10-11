@@ -5,11 +5,11 @@ def chunk_by_sentences(input_text: str, tokenizer: callable):
     :param tokenizer: The tokenizer to use
     :return: A tuple containing the list of text chunks and their corresponding token spans
     """
-    inputs = tokenizer(input_text, return_tensors='pt', return_offsets_mapping=True)
-    punctuation_mark_id = tokenizer.convert_tokens_to_ids('.')
-    sep_id = tokenizer.convert_tokens_to_ids('[SEP]')
-    token_offsets = inputs['offset_mapping'][0]
-    token_ids = inputs['input_ids'][0]
+    inputs = tokenizer(input_text, return_tensors="pt", return_offsets_mapping=True)
+    punctuation_mark_id = tokenizer.convert_tokens_to_ids(".")
+    sep_id = tokenizer.convert_tokens_to_ids("[SEP]")
+    token_offsets = inputs["offset_mapping"][0]
+    token_ids = inputs["input_ids"][0]
     chunk_positions = [
         (i, int(start + 1))
         for i, (token_id, (start, end)) in enumerate(zip(token_ids, token_offsets))
@@ -30,9 +30,8 @@ def chunk_by_sentences(input_text: str, tokenizer: callable):
 
 
 def chunked_pooling(
-    model_output: 'BatchEncoding', span_annotation: list, max_length=None
+    token_embeddings: "BatchEncoding", span_annotation: list, max_length=None
 ):
-    token_embeddings = model_output[0]
     outputs = []
     for embeddings, annotations in zip(token_embeddings, span_annotation):
         if (

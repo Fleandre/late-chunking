@@ -10,15 +10,15 @@ from transformers.modeling_outputs import BaseModelOutputWithPooling
 def construct_document(doc):
     if isinstance(doc, str):
         return doc
-    elif 'title' in doc:
+    elif "title" in doc:
         return f'{doc["title"]} {doc["text"].strip()}'
     else:
-        return doc['text'].strip()
+        return doc["text"].strip()
 
 
 class JinaEmbeddingsV3Wrapper(nn.Module):
     def __init__(
-        self, model_name, tasks=['retrieval.query', 'retrieval.passage'], **model_kwargs
+        self, model_name, tasks=["retrieval.query", "retrieval.passage"], **model_kwargs
     ):
         super().__init__()
         self._model = AutoModel.from_pretrained(
@@ -49,7 +49,7 @@ class JinaEmbeddingsV3Wrapper(nn.Module):
 
     def forward(self, *args, **kwargs):
         task_id = self._model._adaptation_map[self.tasks[1]]
-        num_examples = kwargs['input_ids'].shape[0]
+        num_examples = kwargs["input_ids"].shape[0]
         adapter_mask = torch.full(
             (num_examples,), task_id, dtype=torch.int32, device=self._model.device
         )
@@ -70,7 +70,7 @@ class NomicAIWrapper(nn.Module):
         self._model = SentenceTransformer(
             model_name, trust_remote_code=True, **model_kwargs
         )
-        self.instructions = ['search_query: ', 'search_document: ']
+        self.instructions = ["search_query: ", "search_document: "]
 
     def get_instructions(self):
         return self.instructions
@@ -78,9 +78,9 @@ class NomicAIWrapper(nn.Module):
     def forward(self, *args, **kwargs):
         model_output = self._model.forward(kwargs)
         base_model_output = BaseModelOutputWithPooling(
-            last_hidden_state=model_output['token_embeddings'],
-            pooler_output=model_output['sentence_embedding'],
-            attentions=model_output['attention_mask'],
+            last_hidden_state=model_output["token_embeddings"],
+            pooler_output=model_output["sentence_embedding"],
+            attentions=model_output["attention_mask"],
         )
         return base_model_output
 
@@ -116,23 +116,24 @@ class NomicAIWrapper(nn.Module):
 
 
 MODEL_WRAPPERS = {
-    'jinaai/jina-embeddings-v3': JinaEmbeddingsV3Wrapper,
-    'sentence-transformers/all-MiniLM-L6-v2': SentenceTransformer,
-    'nomic-ai/nomic-embed-text-v1': NomicAIWrapper,
+    "jinaai/jina-embeddings-v3": JinaEmbeddingsV3Wrapper,
+    "sentence-transformers/all-MiniLM-L6-v2": SentenceTransformer,
+    "nomic-ai/nomic-embed-text-v1": NomicAIWrapper,
 }
 
 MODELS_WITHOUT_PROMPT_NAME_ARG = [
-    'jinaai/jina-embeddings-v2-small-en',
-    'jinaai/jina-embeddings-v2-base-en',
-    'jinaai/jina-embeddings-v3',
+    "jinaai/jina-embeddings-v2-small-en",
+    "jinaai/jina-embeddings-v2-base-en",
+    "jinaai/jina-embeddings-v2-base-zh",
+    "jinaai/jina-embeddings-v3",
 ]
 
 
 def remove_unsupported_kwargs(original_encode):
     def wrapper(self, *args, **kwargs):
         # Remove 'prompt_name' from kwargs if present
-        kwargs.pop('prompt_name', None)
-        kwargs.pop('request_qid', None)
+        kwargs.pop("prompt_name", None)
+        kwargs.pop("request_qid", None)
         return original_encode(self, *args, **kwargs)
 
     return wrapper
@@ -141,17 +142,18 @@ def remove_unsupported_kwargs(original_encode):
 def load_model(model_name, **model_kwargs):
     if model_name in MODEL_WRAPPERS:
         model = MODEL_WRAPPERS[model_name](model_name, **model_kwargs)
-        if hasattr(MODEL_WRAPPERS[model_name], 'has_instructions'):
+        if hasattr(MODEL_WRAPPERS[model_name], "has_instructions"):
             has_instructions = MODEL_WRAPPERS[model_name].has_instructions()
         else:
             has_instructions = False
     else:
-        model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
+        # model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
+        model = SentenceTransformer(model_name, trust_remote_code=True)
         has_instructions = False
 
     # encode functions of various models do not support all sentence transformers kwargs parameter
     if model_name in MODELS_WITHOUT_PROMPT_NAME_ARG:
-        ENCODE_FUNC_NAMES = ['encode', 'encode_queries', 'encode_corpus']
+        ENCODE_FUNC_NAMES = ["encode", "encode_queries", "encode_corpus"]
         for func_name in ENCODE_FUNC_NAMES:
             if hasattr(model, func_name):
                 setattr(

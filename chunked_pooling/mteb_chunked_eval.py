@@ -189,10 +189,14 @@ class AbsTaskChunkedRetrieval(AbsTask):
                     model_inputs = {
                         k: v.to(model.device) for k, v in model_inputs.items()
                     }
-                model_outputs = model(**model_inputs)
-                output_embs = chunked_pooling(
-                    model_outputs, annotations, max_length=8192
-                )
+                # for transfromer library
+                # model_outputs = model(model_inputs)
+                # token_embs = model_outputs[0]
+
+                # for sentence-transformers
+                model_outputs = model(**{"input": model_inputs})
+                token_embs = model_outputs["token_embeddings"]
+                output_embs = chunked_pooling(token_embs, annotations, max_length=8192)
                 corpus_embs.extend(output_embs)
 
         max_chunks = max([len(x) for x in corpus_embs])
