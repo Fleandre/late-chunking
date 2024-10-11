@@ -353,7 +353,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 text_chunk = text[start_token_idx:end_token_idx]
                 current_doc.append({"text": text_chunk})
             chunked_corpus[k] = current_doc
-        print("Time taken to chunk: ", (time.time() - start) * 1000, " ms")
+        print("Time taken to chunk: ", (time.time() - start), " s")
         return chunked_corpus
 
     def _calculate_annotations(self, model, corpus_texts):

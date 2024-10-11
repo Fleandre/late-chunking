@@ -4,16 +4,22 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from llama_index.core.node_parser import SemanticSplitterNodeParser
 from llama_index.core.schema import Document
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.huggingface import (
+    HuggingFaceEmbedding as llama_hf_embedding,
+)
 from transformers import AutoTokenizer
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_huggingface import HuggingFaceEmbeddings as langchian_hf_embedding
 
 # Set the logging level to WARNING to suppress INFO and DEBUG messages
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
 CHUNKING_STRATEGIES = [
-    "semantic",
+    "semantic_llama_index",
+    "semantic_langchain",
     "fixed_token",
     "fixed_text",
+    "recursive_chunking",
     "sentences",
     "late_chunking",
 ]
@@ -27,21 +33,31 @@ class Chunker:
         if chunking_strategy not in CHUNKING_STRATEGIES:
             raise ValueError("Unsupported chunking strategy: ", chunking_strategy)
         self.chunking_strategy = chunking_strategy
-        self.embed_model = None
+        self.llama_embed_model = None
+        self.langchain_embed_model = None
         self.embedding_model_name = None
 
     def _setup_semantic_chunking(self, embedding_model_name):
         if embedding_model_name:
             self.embedding_model_name = embedding_model_name
 
-        self.embed_model = HuggingFaceEmbedding(
+        self.llama_embed_model = llama_hf_embedding(
             model_name=self.embedding_model_name,
             trust_remote_code=True,
             embed_batch_size=1,
         )
-        self.splitter = SemanticSplitterNodeParser(
-            embed_model=self.embed_model,
+
+        self.llama_splitter = SemanticSplitterNodeParser(
+            embed_model=self.llama_embed_model,
             show_progress=False,
+        )
+
+        self.langchain_embed_model = langchian_hf_embedding(
+            model_name=self.embedding_model_name,
+        )
+        self.langchain_splitter = SemanticChunker(
+            self.langchain_embed_model,
+            breakpoint_threshold_type="percentile",
         )
 
     def _spans_by_char_to_by_token(self, text, tokenizer, spans_by_char):
@@ -85,20 +101,20 @@ class Chunker:
             )
         return chunk_spans_by_char
 
-    def chunk_semantically(
+    def chunk_semantically_with_llamaindex(
         self,
         text: str,
         tokenizer: "AutoTokenizer",
         use_token_index: bool,
         embedding_model_name: Optional[str] = None,
     ) -> List[Tuple[int, int]]:
-        if self.embed_model is None:
+        if self.llama_embed_model is None:
             self._setup_semantic_chunking(embedding_model_name)
 
         # Get semantic nodes
         nodes = [
             (node.start_char_idx, node.end_char_idx)
-            for node in self.splitter.get_nodes_from_documents(
+            for node in self.llama_splitter.get_nodes_from_documents(
                 [Document(text=text)], show_progress=False
             )
         ]
@@ -106,6 +122,31 @@ class Chunker:
         chunk_spans_by_char = []
         for char_start, char_end in nodes:
             chunk_spans_by_char.append((char_start, char_end))
+
+        # 返回以原始text中char index记录的chunk坐标
+        if not use_token_index:
+            return chunk_spans_by_char
+
+        return self._spans_by_char_to_by_token(text, tokenizer, chunk_spans_by_char)
+
+    def chunk_semantically_with_langchain(
+        self,
+        text: str,
+        tokenizer: "AutoTokenizer",
+        use_token_index: bool,
+        embedding_model_name: Optional[str] = None,
+    ) -> List[Tuple[int, int]]:
+        if self.langchain_embed_model is None:
+            self._setup_semantic_chunking(embedding_model_name)
+
+        # Get semantic nodes
+        text_chunks = self.langchain_splitter.split_text(text)
+
+        chunk_spans_by_char = []
+        idx = 0
+        for text_chunk in text_chunks:
+            chunk_spans_by_char.append((idx, idx + len(text_chunk)))
+            idx += len(text_chunk) + 1
 
         # 返回以原始text中char index记录的chunk坐标
         if not use_token_index:
@@ -198,8 +239,15 @@ class Chunker:
         use_token_index: bool = True,
     ):
         chunking_strategy = chunking_strategy or self.chunking_strategy
-        if chunking_strategy == "semantic":
-            return self.chunk_semantically(
+        if chunking_strategy == "semantic_llama_index":
+            return self.chunk_semantically_with_llamaindex(
+                text,
+                embedding_model_name=embedding_model_name,
+                tokenizer=tokenizer,
+                use_token_index=use_token_index,
+            )
+        elif chunking_strategy == "semantic_langchain":
+            return self.chunk_semantically_with_langchain(
                 text,
                 embedding_model_name=embedding_model_name,
                 tokenizer=tokenizer,
