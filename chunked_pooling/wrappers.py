@@ -49,11 +49,15 @@ class JinaEmbeddingsV3Wrapper(nn.Module):
 
     def forward(self, *args, **kwargs):
         task_id = self._model._adaptation_map[self.tasks[1]]
-        num_examples = kwargs["input_ids"].shape[0]
+        # 获取"input"字段以兼容sentence-trasformer
+        num_examples = kwargs["input"]["input_ids"].shape[0]
         adapter_mask = torch.full(
             (num_examples,), task_id, dtype=torch.int32, device=self._model.device
         )
-        return self._model.forward(*args, adapter_mask=adapter_mask, **kwargs)
+        model_outputs = self._model.forward(
+            *args, adapter_mask=adapter_mask, **kwargs["input"]
+        )
+        return {"token_embeddings": model_outputs["last_hidden_state"]}
 
     @property
     def device(self):
