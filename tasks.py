@@ -11,14 +11,14 @@ from chunked_pooling.wrappers import load_model
 # 定义 Celery 实例，使用 Redis 作为消息队列
 app = Celery(
     "tasks",
-    broker="redis://sh-ppml-01.alipay.net:6379/0",
-    backend="redis://sh-ppml-01.alipay.net:6379/0",
+    broker="redis://sh-ppml-03.alipay.net:6379/0",
+    backend="redis://sh-ppml-03.alipay.net:6379/0",
 )
 
 task_name_to_cls = get_eval_tasks()
 
 
-def run_eval(eval_setting_str, task_name_to_cls, batch_size, return_dict):
+def run_eval(eval_setting_str, task_name_to_cls, batch_size):
     eval_setting = json.loads(eval_setting_str)
     print(f"Evaluation Setting: {eval_setting}")
     task_cls = task_name_to_cls[eval_setting["task"]]
@@ -62,19 +62,15 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size, return_dict):
         prune_size=None,
         **chunking_args,
     )
-    try:
-        res = evaluation.run(
-            model,
-            output_folder="results",
-            eval_splits=tasks[0].eval_splits,
-            overwrite_results=True,
-            encode_kwargs={"batch_size": batch_size},
-            verbosity=0,
-        )
-    except:
-        print(f"Batch size {batch_size} is too large. Reduce batch size and try again.")
-        return_dict[eval_setting_str] = (-1, None)
-        return return_dict
+
+    res = evaluation.run(
+        model,
+        output_folder="results",
+        eval_splits=tasks[0].eval_splits,
+        overwrite_results=True,
+        encode_kwargs={"batch_size": batch_size},
+        verbosity=0,
+    )
 
     # 保存结果
     res_dict = res[0].to_dict()
@@ -84,37 +80,19 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size, return_dict):
     res_dict["n_sentences"] = n_sentences
     res_dict["chunking_model"] = chunking_model
 
-    return_dict[eval_setting_str] = (batch_size, res_dict)
-
-    return return_dict
+    return res_dict
 
 
 @app.task
 def compute_task(eval_setting):
     # 定义尝试的batch size列表，从大到小
     batch_sizes = [32, 16, 8, 4, 2, 1]
-    manager = multiprocessing.Manager()
-    sub_proc_return_dict = manager.dict()
-    optimal_batch_size_dict = dict()
-    for batch_size in batch_sizes:
-        p = multiprocessing.Process(
-            target=run_eval,
-            args=(
-                eval_setting,
-                task_name_to_cls,
-                batch_size,
-                sub_proc_return_dict,
-            ),
-        )
-        p.start()
-        p.join()
 
-        # 检查是否成功运行
-        optimal_batch_size, res_dict = sub_proc_return_dict[eval_setting]
-        optimal_batch_size_dict[eval_setting] = optimal_batch_size
-        if optimal_batch_size != -1:
-            print(
-                f"Parameters: {eval_setting}, Optimal batch size: {optimal_batch_size}"
-            )
-            return res_dict
+    for batch_size in batch_sizes:
+        try:
+            res = run_eval(eval_setting, task_name_to_cls, batch_size)
+            return res
+        except:
+            print("Batch size {batch_size} is too large, trying next batch size")
+
     return None
