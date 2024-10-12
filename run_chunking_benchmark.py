@@ -8,7 +8,6 @@ import multiprocessing
 from chunked_pooling.chunked_eval_tasks import *
 from chunked_pooling.wrappers import load_model
 
-BATCH_SIZE = 8
 SKIP_EVAL_TASKS = [
     "ClimateFEVERChunked",
     "DBPediaChunked",
@@ -152,16 +151,16 @@ def main():
     # chunking策略列表
     strategies = [
         # "semantic_llama_index",
-        # "semantic_langchain",
+        "semantic_langchain",
         "fixed_token",
-        "fixed_text",
+        # "fixed_text",
         # "recursive_chunking",
         # "sentences",
         "late_chunking",
     ]
 
     # chunk size
-    chunk_size_list = [128, 256, 512, 1024, 1536, 2048]
+    chunk_size_list = [128, 256, 512, 1024]
 
     # model
     models = [
@@ -187,6 +186,7 @@ def main():
     batch_sizes = [32, 16, 8, 4, 2, 1]
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
+    optimal_batch_size_dict = dict()
     for i, eval_setting in enumerate(eval_settings):
         for batch_size in batch_sizes:
             p = multiprocessing.Process(
@@ -204,6 +204,7 @@ def main():
 
             # 检查是否成功运行
             optimal_batch_size, res_dict = return_dict[eval_setting]
+            optimal_batch_size_dict[eval_setting] = optimal_batch_size
             if optimal_batch_size != -1:
                 print(
                     f"Parameters: {eval_setting}, Optimal batch size: {optimal_batch_size}"
@@ -214,8 +215,8 @@ def main():
                     json.dump(benchmark, f, ensure_ascii=False, indent=4)
                 break
 
-    with open(f"{OUTPUT_DIR}/batch_size.json", "w", encoding="utf-8") as f:
-        json.dump(dict(return_dict), f, ensure_ascii=False, indent=4)
+        with open(f"{OUTPUT_DIR}/batch_size.json", "w", encoding="utf-8") as f:
+            json.dump(optimal_batch_size_dict, f, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":

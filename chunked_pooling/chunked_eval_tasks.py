@@ -103,6 +103,7 @@ class ClimateFEVERChunked(AbsTaskChunkedRetrieval):
 #     def __init__(self, **kwargs):
 #         super().__init__(**kwargs)
 
+
 class DBPediaChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
         name="DBPediaChunked",
@@ -357,7 +358,7 @@ class QuoraChunked(AbsTaskChunkedRetrieval):
         reference="https://quoradata.quora.com/First-Quora-Dataset-Release-Question-Pairs",
         type="Retrieval",
         category="s2s",
-        eval_splits=["dev", "test"],
+        eval_splits=["test"],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=None,
@@ -390,7 +391,7 @@ class FiQA2018Chunked(AbsTaskChunkedRetrieval):
         },
         type="Retrieval",
         category="s2p",
-        eval_splits=["train", "dev", "test"],
+        eval_splits=["test"],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=None,
