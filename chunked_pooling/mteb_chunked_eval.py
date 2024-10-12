@@ -105,6 +105,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 queries,
                 relevant_docs,
                 hf_subset,
+                batch_size=encode_kwargs["batch_size"],
                 encode_kwargs=encode_kwargs,
                 **kwargs,
             )
