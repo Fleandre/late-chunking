@@ -119,6 +119,8 @@ def main(num_tasks):
 
     for result_task in result_tasks:
         result = result_task["result"].get()
+        if result is None:
+            continue
         benchmark.append(result)
 
         print(f"Task: {result_task['task_id']} finished.")
