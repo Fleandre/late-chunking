@@ -60,7 +60,12 @@ def main():
     results = []
     while result_tasks:
         for result_task in result_tasks:
-            if not result_task["result"].ready():
+            is_ready = False
+            try:
+                is_ready = result_task["result"].ready()
+            except Exception as e:
+                continue
+            if not is_ready:
                 continue
             # 任务已完成
             result = result_task["result"].get()
@@ -71,12 +76,14 @@ def main():
 
             print(f"Task: {result_task['task_id']} finished.")
 
-            with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
-                json.dump(benchmark, f, ensure_ascii=False, indent=4)
-
             # 移除已完成任务
             result_tasks.remove(result_task)
-        time.sleep(30)  # 轮询间隔时间
+
+        # 集中写入一次结果
+        with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
+            json.dump(benchmark, f, ensure_ascii=False, indent=4)
+
+        time.sleep(10)  # 轮询间隔时间
 
 
 if __name__ == "__main__":
