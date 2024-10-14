@@ -1,0 +1,138 @@
+{
+    "ArguAnaChunked": {
+        "queries": 1406,
+        "corpus": 8674
+    },
+    "ClimateFEVERChunked": {
+        "queries": 1535,
+        "corpus": 5416593
+    },
+    "DBPediaChunked": {
+        "queries": 400,
+        "corpus": 4635922
+    },
+    "FEVERChunked": {
+        "queries": 6666,
+        "corpus": 5416568
+    },
+    "HotpotQAChunked": {
+        "queries": 7405,
+        "corpus": 5233329
+    },
+    "MSMARCOChunked": {
+        "queries": 43,
+        "corpus": 8841823
+    },
+    "SciFactChunked": {
+        "queries": 300,
+        "corpus": 5183
+    },
+    "NarrativeQAChunked": {
+        "queries": 10557,
+        "corpus": 355
+    },
+    "NFCorpusChunked": {
+        "queries": 323,
+        "corpus": 3633
+    },
+    "QuoraChunked": {
+        "queries": 10000,
+        "corpus": 522931
+    },
+    "FiQA2018Chunked": {
+        "queries": 648,
+        "corpus": 57638
+    },
+    "TRECCOVIDChunked": {
+        "queries": 50,
+        "corpus": 171332
+    },
+    "LEMBWikimQARetrievalChunked": {
+        "queries": 300,
+        "corpus": 300
+    },
+    "SCIDOCSChunked": {
+        "queries": 1000,
+        "corpus": 25657
+    },
+    "Touche2020Chunked": {
+        "queries": 49,
+        "corpus": 382545
+    },
+    "CmedqaRetrievalChunked": {
+        "queries": 3999,
+        "corpus": 100001
+    },
+    "CovidRetrievallChunked": {
+        "queries": 949,
+        "corpus": 100001
+    },
+    "DuRetrievalChunked": {
+        "queries": 2000,
+        "corpus": 100001
+    },
+    "EcomRetrievalChunked": {
+        "queries": 1000,
+        "corpus": 100902
+    },
+    "MedicalRetrievalChunked": {
+        "queries": 1000,
+        "corpus": 100999
+    },
+    "MMarcoRetrievalChunked": {
+        "queries": 6980,
+        "corpus": 106813
+    },
+    "T2RetrievalChunked": {
+        "queries": 22812,
+        "corpus": 118605
+    },
+    "VideoRetrievalChunked": {
+        "queries": 1000,
+        "corpus": 100930
+    },
+    "CrosslingualRetrievalQasEn2ZhChunked": {
+        "queries": 20000,
+        "corpus": 79955
+    },
+    "CrosslingualRetrievalBooksEn2ZhChunked": {
+        "queries": 31172,
+        "corpus": 4614
+    },
+    "CrosslingualRetrievalBooksZh2EnChunked": {
+        "queries": 31172,
+        "corpus": 4614
+    },
+    "CrosslingualRetrievalFinanceEn2ZhChunked": {
+        "queries": 25045,
+        "corpus": 4668
+    },
+    "CrosslingualRetrievalFinanceZh2EnChunked": {
+        "queries": 25020,
+        "corpus": 4668
+    },
+    "CrosslingualRetrievalLawEn2ZhChunked": {
+        "queries": 26642,
+        "corpus": 4899
+    },
+    "CrosslingualRetrievalLawZh2EnChunked": {
+        "queries": 26653,
+        "corpus": 4897
+    },
+    "CrosslingualRetrievalPaperEn2ZhChunked": {
+        "queries": 22456,
+        "corpus": 5076
+    },
+    "CrosslingualRetrievalPaperZh2EnChunked": {
+        "queries": 22515,
+        "corpus": 5101
+    },
+    "CrosslingualRetrievalWikiEn2ZhChunked": {
+        "queries": 34060,
+        "corpus": 6506
+    },
+    "CrosslingualRetrievalWikiZh2EnChunked": {
+        "queries": 34062,
+        "corpus": 6504
+    }
+}
