@@ -1,4 +1,5 @@
 import json
+import time
 import itertools
 from tasks import compute_task
 from chunked_pooling.chunked_eval_tasks import *
@@ -56,16 +57,26 @@ def main():
         result = compute_task.delay(task_str)
         result_tasks.append({"task_id": task_str, "result": result})
 
-    for result_task in result_tasks:
-        result = result_task["result"].get()
-        if result is None:
-            continue
-        benchmark.append(result)
+    results = []
+    while result_tasks:
+        for result_task in result_tasks:
+            if not result_task["result"].ready():
+                continue
+            # 任务已完成
+            result = result_task["result"].get()
+            if result is None:
+                continue
 
-        print(f"Task: {result_task['task_id']} finished.")
+            benchmark.append(result)
 
-        with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
-            json.dump(benchmark, f, ensure_ascii=False, indent=4)
+            print(f"Task: {result_task['task_id']} finished.")
+
+            with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
+                json.dump(benchmark, f, ensure_ascii=False, indent=4)
+
+            # 移除已完成任务
+            result_tasks.remove(result_task)
+        time.sleep(30)  # 轮询间隔时间
 
 
 if __name__ == "__main__":
