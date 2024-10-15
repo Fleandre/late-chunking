@@ -1053,7 +1053,7 @@ class CrosslingualRetrievalQasEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalBooksEn2ZhChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalBooksEn2Zh",
+        name="CrosslingualRetrievalBooksEn2ZhChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1083,7 +1083,7 @@ class CrosslingualRetrievalBooksEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalBooksZh2EnChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalBooksZh2En",
+        name="CrosslingualRetrievalBooksZh2EnChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1113,7 +1113,7 @@ class CrosslingualRetrievalBooksZh2EnChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalFinanceEn2ZhChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalFinanceEn2Zh",
+        name="CrosslingualRetrievalFinanceEn2ZhChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1143,7 +1143,7 @@ class CrosslingualRetrievalFinanceEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalFinanceZh2EnChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalFinanceZh2En",
+        name="CrosslingualRetrievalFinanceZh2EnChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1173,7 +1173,7 @@ class CrosslingualRetrievalFinanceZh2EnChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalLawEn2ZhChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalLawEn2Zh",
+        name="CrosslingualRetrievalLawEn2ZhChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1203,7 +1203,7 @@ class CrosslingualRetrievalLawEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalLawZh2EnChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalLawZh2En",
+        name="CrosslingualRetrievalLawZh2EnChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1233,7 +1233,7 @@ class CrosslingualRetrievalLawZh2EnChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalPaperEn2ZhChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalPaperEn2Zh",
+        name="CrosslingualRetrievalPaperEn2ZhChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1263,7 +1263,7 @@ class CrosslingualRetrievalPaperEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalPaperZh2EnChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalPaperZh2En",
+        name="CrosslingualRetrievalPaperZh2EnChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1293,7 +1293,7 @@ class CrosslingualRetrievalPaperZh2EnChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalWikiEn2ZhChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalWikiEn2Zh",
+        name="CrosslingualRetrievalWikiEn2ZhChunked",
         description="",
         reference="https://None",
         dataset={
@@ -1323,7 +1323,7 @@ class CrosslingualRetrievalWikiEn2ZhChunked(AbsTaskChunkedRetrieval):
 
 class CrosslingualRetrievalWikiZh2EnChunked(AbsTaskChunkedRetrieval):
     metadata = TaskMetadata(
-        name="CrosslingualRetrievalWikiZh2En",
+        name="CrosslingualRetrievalWikiZh2EnChunked",
         description="",
         reference="https://None",
         dataset={

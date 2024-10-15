@@ -83,43 +83,7 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size, benchmark, return_d
 
 def main():
     task_name_to_cls = get_eval_tasks()
-
-    # 排除部分不测试的数据集
-    task_names = filter_tasks(task_name_to_cls)
-
-    # chunking策略列表
-    strategies = [
-        # "semantic_llama_index",
-        "semantic_langchain",
-        "fixed_token",
-        # "fixed_text",
-        # "recursive_chunking",
-        # "sentences",
-        "late_chunking",
-    ]
-
-    # chunk size
-    chunk_size_list = [128, 256, 512, 1024]
-
-    # model
-    models = [
-        "jinaai/jina-embeddings-v2-base-zh",
-        "jinaai/jina-embeddings-v3",
-        "BAAI/bge-m3",
-        # "maidalun1020/bce-embedding-base_v1",
-    ]
-
-    # 笛卡尔集
-    param_names = ["task", "strategy", "chunk_size", "model_name"]
-    combinations = itertools.product(task_names, strategies, chunk_size_list, models)
-    combinations = [dict(zip(param_names, combo)) for combo in combinations]
-    # 去除非法和已测试的组合
-    evaluated_key, benchmark = load_existing_results()
-    eval_settings = set()
-    for combo in combinations:
-        valid_setting = get_valid_setting_str(combo, evaluated_key, OVERWRITE)
-        if valid_setting is not None:
-            eval_settings.add(valid_setting)
+    eval_settings, benchmark = generate_tasks()
 
     # 定义尝试的batch size列表，从大到小
     batch_sizes = [32, 16, 8, 4, 2, 1]

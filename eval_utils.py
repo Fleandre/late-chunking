@@ -45,15 +45,15 @@ def load_existing_results():
             content = []
     for eval_res in content:
         eval_setting = {
-            "task_name": eval_res["task_name"],
-            "model_name": eval_res["model_name"],
+            "task_names": eval_res["task_name"],
             "chunking_strategy": eval_res["chunking_strategy"],
             "chunk_size": eval_res["chunk_size"],
+            "model_name": eval_res["model_name"],
         }
         key = json.dumps(eval_setting, sort_keys=True)
-        # assert (
-        #     key not in evaluated_key
-        # ), f"{key} already exists, please check the benchmark.json file."
+        assert (
+            key not in evaluated_key
+        ), f"{key} already exists, please check the benchmark.json file."
         evaluated_key.add(key)
 
     return evaluated_key, content
@@ -61,9 +61,9 @@ def load_existing_results():
 
 # 定义不合法组合的规则
 def get_valid_setting_str(eval_setting, exist_results, overwrite=False):
-    task_cls = eval_setting["task"]
+    task_cls = eval_setting["task_names"]
     model_name = eval_setting["model_name"]
-    strategy = eval_setting["strategy"]
+    strategy = eval_setting["chunking_strategy"]
     chunk_size = eval_setting["chunk_size"]
 
     # 规则1: semantic candhunking策略下chunk size无影响
@@ -80,3 +80,46 @@ def get_valid_setting_str(eval_setting, exist_results, overwrite=False):
         return None
 
     return setting_key
+
+
+def generate_tasks():
+    task_name_to_cls = get_eval_tasks()
+
+    # 排除部分不测试的数据集
+    task_names = filter_tasks(task_name_to_cls)
+
+    # chunking策略列表
+    strategies = [
+        # "semantic_llama_index",
+        "semantic_langchain",
+        "fixed_token",
+        # "fixed_text",
+        # "recursive_chunking",
+        # "sentences",
+        "late_chunking",
+    ]
+
+    # chunk size
+    chunk_size_list = [128, 256, 512, 1024]
+
+    # model
+    models = [
+        "jinaai/jina-embeddings-v2-base-zh",
+        "jinaai/jina-embeddings-v3",
+        "BAAI/bge-m3",
+        # "maidalun1020/bce-embedding-base_v1",
+    ]
+
+    # 笛卡尔集
+    param_names = ["task_names", "chunking_strategy", "chunk_size", "model_name"]
+    combinations = itertools.product(task_names, strategies, chunk_size_list, models)
+    combinations = [dict(zip(param_names, combo)) for combo in combinations]
+    # 去除非法和已测试的组合
+    evaluated_key, benchmark = load_existing_results()
+    eval_settings = set()
+    for combo in combinations:
+        valid_setting = get_valid_setting_str(combo, evaluated_key, OVERWRITE)
+        if valid_setting is not None:
+            eval_settings.add(valid_setting)
+
+    return list(eval_settings), benchmark

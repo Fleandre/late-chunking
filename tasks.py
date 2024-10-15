@@ -83,8 +83,8 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size):
     return res_dict
 
 
-@app.task
-def compute_task(eval_setting):
+@app.task(bind=True, max_retries=1, acks_late=True)
+def compute_task(self, eval_setting):
     # 定义尝试的batch size列表，从大到小
     batch_sizes = [32, 16, 8, 4, 2, 1]
 
@@ -92,7 +92,11 @@ def compute_task(eval_setting):
         try:
             res = run_eval(eval_setting, task_name_to_cls, batch_size)
             return res
-        except:
-            print("Batch size {batch_size} is too large, trying next batch size")
+        except RuntimeError as e:
+            print(f"Batch size {batch_size} is too large, trying next batch size")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            # 你可以选择在这里重试任务
+            raise self.retry(exc=e, countdown=1)
 
     return None
