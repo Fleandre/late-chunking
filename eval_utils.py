@@ -45,7 +45,7 @@ def load_existing_results():
             content = []
     for eval_res in content:
         eval_setting = {
-            "task_names": eval_res["task_name"],
+            "task_name": eval_res["task_name"],
             "chunking_strategy": eval_res["chunking_strategy"],
             "chunk_size": eval_res["chunk_size"],
             "model_name": eval_res["model_name"],
@@ -61,7 +61,7 @@ def load_existing_results():
 
 # 定义不合法组合的规则
 def get_valid_setting_str(eval_setting, exist_results, overwrite=False):
-    task_cls = eval_setting["task_names"]
+    task_cls = eval_setting["task_name"]
     model_name = eval_setting["model_name"]
     strategy = eval_setting["chunking_strategy"]
     chunk_size = eval_setting["chunk_size"]
@@ -111,7 +111,7 @@ def generate_tasks():
     ]
 
     # 笛卡尔集
-    param_names = ["task_names", "chunking_strategy", "chunk_size", "model_name"]
+    param_names = ["task_name", "chunking_strategy", "chunk_size", "model_name"]
     combinations = itertools.product(task_names, strategies, chunk_size_list, models)
     combinations = [dict(zip(param_names, combo)) for combo in combinations]
     # 去除非法和已测试的组合

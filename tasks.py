@@ -21,9 +21,9 @@ task_name_to_cls = get_eval_tasks()
 def run_eval(eval_setting_str, task_name_to_cls, batch_size):
     eval_setting = json.loads(eval_setting_str)
     print(f"Evaluation Setting: {eval_setting}")
-    task_cls = task_name_to_cls[eval_setting["task"]]
+    task_cls = task_name_to_cls[eval_setting["task_name"]]
     model_name = eval_setting["model_name"]
-    strategy = eval_setting["strategy"]
+    strategy = eval_setting["chunking_strategy"]
     chunk_size = eval_setting["chunk_size"]
     n_sentences = 5
     chunking_model = None
