@@ -1,7 +1,8 @@
 .vscode/
-results*/
+results/*
 *egg-info/
 build/
 **/__pycache__/
 **/*.pyc
 *.austin
+!results/benchmark.json
