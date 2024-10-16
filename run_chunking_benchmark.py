@@ -13,9 +13,9 @@ from eval_utils import *
 def run_eval(eval_setting_str, task_name_to_cls, batch_size, benchmark, return_dict):
     eval_setting = json.loads(eval_setting_str)
     print(f"Evaluation Setting: {eval_setting}")
-    task_cls = task_name_to_cls[eval_setting["task"]]
+    task_cls = task_name_to_cls[eval_setting["task_name"]]
     model_name = eval_setting["model_name"]
-    strategy = eval_setting["strategy"]
+    strategy = eval_setting["chunking_strategy"]
     chunk_size = eval_setting["chunk_size"]
     n_sentences = 5
     chunking_model = None
@@ -86,7 +86,7 @@ def main():
     eval_settings, benchmark = generate_tasks()
 
     # 定义尝试的batch size列表，从大到小
-    batch_sizes = [32, 16, 8, 4, 2, 1]
+    batch_sizes = [128, 64, 32, 16, 8, 4, 2, 1]
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     optimal_batch_size_dict = dict()
