@@ -86,7 +86,8 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size):
 @app.task(bind=True, max_retries=1, acks_late=True)
 def compute_task(self, eval_setting):
     # 定义尝试的batch size列表，从大到小
-    batch_sizes = [32, 16, 8, 4, 2, 1]
+    # batch_sizes = [32, 16, 8, 4, 2, 1]
+    batch_sizes = [1]
 
     for batch_size in batch_sizes:
         try:
