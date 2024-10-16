@@ -54,6 +54,7 @@ class Chunker:
 
         self.langchain_embed_model = langchian_hf_embedding(
             model_name=self.embedding_model_name,
+            model_kwargs={"trust_remote_code": True},
         )
         self.langchain_splitter = SemanticChunker(
             self.langchain_embed_model,
