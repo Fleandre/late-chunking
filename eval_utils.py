@@ -122,4 +122,5 @@ def generate_tasks():
         if valid_setting is not None:
             eval_settings.add(valid_setting)
 
+    print(eval_settings)
     return list(eval_settings), benchmark

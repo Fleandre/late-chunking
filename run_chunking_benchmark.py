@@ -86,7 +86,7 @@ def main():
     eval_settings, benchmark = generate_tasks()
 
     # 定义尝试的batch size列表，从大到小
-    batch_sizes = [128, 64, 32, 16, 8, 4, 2, 1]
+    batch_sizes = [1]
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     optimal_batch_size_dict = dict()
@@ -109,18 +109,11 @@ def main():
             optimal_batch_size, res_dict = return_dict[eval_setting]
             optimal_batch_size_dict[eval_setting] = optimal_batch_size
             if optimal_batch_size != -1:
-                print(
-                    f"Parameters: {eval_setting}, Optimal batch size: {optimal_batch_size}"
-                )
                 # 保存结果
                 benchmark.append(res_dict)
                 with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
                     json.dump(benchmark, f, ensure_ascii=False, indent=4)
-                break
-
-        with open(f"{OUTPUT_DIR}/batch_size.json", "w", encoding="utf-8") as f:
-            json.dump(optimal_batch_size_dict, f, ensure_ascii=False, indent=4)
-
-
+                    break
+    
 if __name__ == "__main__":
     main()
