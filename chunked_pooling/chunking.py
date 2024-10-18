@@ -45,6 +45,7 @@ class Chunker:
             model_name=self.embedding_model_name,
             trust_remote_code=True,
             embed_batch_size=1,
+            device="cpu",
         )
 
         self.llama_splitter = SemanticSplitterNodeParser(
