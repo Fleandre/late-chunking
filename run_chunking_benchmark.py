@@ -26,8 +26,8 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size, benchmark, return_d
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-    # if torch.cuda.is_available():
-    #     model = model.cuda()
+    if torch.cuda.is_available():
+        model = model.cuda()
     model.eval()
 
     chunking_args = {
@@ -114,6 +114,7 @@ def main():
                 with open(f"{OUTPUT_DIR}/benchmark.json", "w", encoding="utf-8") as f:
                     json.dump(benchmark, f, ensure_ascii=False, indent=4)
                     break
-    
+
+
 if __name__ == "__main__":
     main()
