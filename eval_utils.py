@@ -108,9 +108,9 @@ def generate_tasks():
 
     # model
     models = [
-        # "jinaai/jina-embeddings-v2-base-zh",
-        # "jinaai/jina-embeddings-v3",
-        # "BAAI/bge-m3",
+        "jinaai/jina-embeddings-v2-base-zh",
+        "jinaai/jina-embeddings-v3",
+        "BAAI/bge-m3",
         "maidalun1020/bce-embedding-base_v1",
     ]
 

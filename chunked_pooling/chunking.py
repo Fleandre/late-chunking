@@ -45,7 +45,6 @@ class Chunker:
             model_name=self.embedding_model_name,
             trust_remote_code=True,
             embed_batch_size=1,
-            device="cpu",
         )
 
         self.llama_splitter = SemanticSplitterNodeParser(
@@ -55,11 +54,12 @@ class Chunker:
 
         self.langchain_embed_model = langchian_hf_embedding(
             model_name=self.embedding_model_name,
-            model_kwargs={"trust_remote_code": True, "device": "cpu"},
+            model_kwargs={"trust_remote_code": True},
         )
         self.langchain_splitter = SemanticChunker(
             self.langchain_embed_model,
             breakpoint_threshold_type="percentile",
+            sentence_split_regex=r"(?<=[.?!，？！。；])\s*",
         )
 
     def _spans_by_char_to_by_token(self, text, tokenizer, spans_by_char):
