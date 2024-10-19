@@ -74,8 +74,12 @@ def get_valid_setting_str(eval_setting, exist_results, overwrite=False):
     if "bce-embedding-base_v1" in model_name and strategy == "late_chunking":
         return None
 
+    # 规则3: bce-embedding-base_v1最长上下文为512, 因此无法使用chunk size > 512
+    if "bce-embedding-base_v1" in model_name and chunk_size > 512:
+        return None
+
     setting_key = json.dumps(eval_setting, sort_keys=True)
-    # 规则3: 如果overwrite为False, 则跳过已经存在的结果
+    # 规则4: 如果overwrite为False, 则跳过已经存在的结果
     if not overwrite and setting_key in exist_results:
         return None
 
@@ -104,10 +108,10 @@ def generate_tasks():
 
     # model
     models = [
-        "jinaai/jina-embeddings-v2-base-zh",
-        "jinaai/jina-embeddings-v3",
-        "BAAI/bge-m3",
-        # "maidalun1020/bce-embedding-base_v1",
+        # "jinaai/jina-embeddings-v2-base-zh",
+        # "jinaai/jina-embeddings-v3",
+        # "BAAI/bge-m3",
+        "maidalun1020/bce-embedding-base_v1",
     ]
 
     # 笛卡尔集

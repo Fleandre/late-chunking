@@ -34,8 +34,8 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size):
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-    # if torch.cuda.is_available():
-    #     model = model.cuda()
+    if torch.cuda.is_available():
+        model = model.cuda()
     model.eval()
 
     chunking_args = {
