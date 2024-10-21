@@ -30,7 +30,7 @@ def run_eval(eval_setting_str, task_name_to_cls, batch_size):
     truncate_max_length = None
 
     # build dependencies
-    model, has_instructions = load_model(model_name)
+    model, has_instructions = load_model(model_name, chunking_method=strategy)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 

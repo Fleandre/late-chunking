@@ -9,7 +9,7 @@ from chunked_pooling.wrappers import load_model
 DEFAULT_CHUNKING_STRATEGY = "fixed_token"
 DEFAULT_CHUNK_SIZE = 256
 DEFAULT_N_SENTENCES = 5
-BATCH_SIZE = 1
+BATCH_SIZE = 16
 OUTPUT_DIR = "results"
 
 
@@ -69,7 +69,7 @@ def main(
     assert task_name in task_clses, f"Unknown task name: {task_name}"
     task_cls = task_clses[task_name]
 
-    model, has_instructions = load_model(model_name)
+    model, has_instructions = load_model(model_name, chunking_method=strategy)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
@@ -104,7 +104,7 @@ def main(
         prune_size=None,
         **chunking_args,
     )
-    evaluation.run(
+    res = evaluation.run(
         model,
         output_folder=OUTPUT_DIR,
         eval_splits=eval_splits,
@@ -112,6 +112,8 @@ def main(
         encode_kwargs={"batch_size": BATCH_SIZE},
         verbosity=2,
     )
+    print(res[0].scores)
+    pass
 
 
 if __name__ == "__main__":

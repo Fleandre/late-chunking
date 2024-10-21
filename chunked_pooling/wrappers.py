@@ -2,9 +2,11 @@ from typing import List, Optional, Union
 
 import torch
 import torch.nn as nn
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModel
 from transformers.modeling_outputs import BaseModelOutputWithPooling
+from FlagEmbedding import BGEM3FlagModel
 
 
 def construct_document(doc):
@@ -118,11 +120,68 @@ class NomicAIWrapper(nn.Module):
     def has_instructions():
         return True
 
+class BAAIBGEM3Wrapper(nn.Module):
+    def __init__(
+        self, model_name, **model_kwargs
+    ):
+        super().__init__()
+        chunking_method = model_kwargs.pop("chunking_method")
+        self.return_colbert = chunking_method == "late_chunking"
+        self._model = BGEM3FlagModel(model_name, **model_kwargs, 
+                                     normalize_embeddings=True,
+                                     use_fp16=False)
+
+    def encode(
+        self,
+        sentences: Union[str, List[str]],
+        *args,
+        **kwargs,
+    ):
+        kwargs.pop("output_value", None)
+        embeddings = self._model.encode(
+            sentences, *args, **kwargs,
+            return_dense=True, return_colbert_vecs=self.return_colbert)
+        
+        if self.return_colbert:
+            token_embeds = [torch.from_numpy(embed) for embed in embeddings["colbert_vecs"]]
+            return token_embeds
+        
+        return torch.tensor(embeddings["dense_vecs"])
+
+    def encode_queries(
+        self,
+        sentences: Union[str, List[str]],
+        *args,
+        **kwargs,
+    ):
+        embeds = self.encode(sentences, *args, **kwargs)
+        if self.return_colbert:
+            mean_pooled = np.array([embed.numpy().mean(axis=0) for embed in embeds])
+            normalized = mean_pooled / np.linalg.norm(mean_pooled, axis=1)[:, None]
+            return normalized
+        return embeds
+
+    def encode_corpus(
+        self,
+        sentences: Union[str, List[str]],
+        *args,
+        **kwargs,
+    ):
+        return self.encode(sentences, *args, **kwargs)
+
+    @property
+    def device(self):
+        return self._model.device
+
+    @staticmethod
+    def has_instructions():
+        return False
 
 MODEL_WRAPPERS = {
     "jinaai/jina-embeddings-v3": JinaEmbeddingsV3Wrapper,
     "sentence-transformers/all-MiniLM-L6-v2": SentenceTransformer,
     "nomic-ai/nomic-embed-text-v1": NomicAIWrapper,
+    "BAAI/bge-m3": BAAIBGEM3Wrapper,
 }
 
 MODELS_WITHOUT_PROMPT_NAME_ARG = [

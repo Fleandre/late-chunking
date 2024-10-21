@@ -195,8 +195,15 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 # token_embs = model_outputs[0]
 
                 # for sentence-transformers
-                model_outputs = model(**{"input": model_inputs})
-                token_embs = model_outputs["token_embeddings"]
+                # model_outputs = model(**{"input": model_inputs})
+                # token_embs = model_outputs["token_embeddings"]
+
+                # replace sentence-transformer
+                token_embs = model.encode(
+                    text_inputs,
+                    output_value="token_embeddings",
+                )
+
                 output_embs = chunked_pooling(token_embs, annotations, max_length=8192)
                 corpus_embs.extend(output_embs)
 
