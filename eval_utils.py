@@ -95,8 +95,8 @@ def generate_tasks():
     # chunking策略列表
     strategies = [
         # "semantic_llama_index",
-        "semantic_langchain",
-        "fixed_token",
+        # "semantic_langchain",
+        # "fixed_token",
         # "fixed_text",
         # "recursive_chunking",
         # "sentences",
