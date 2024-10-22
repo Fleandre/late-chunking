@@ -40622,5 +40622,53 @@
         "chunk_size": -1,
         "n_sentences": 5,
         "chunking_model": null
+    },
+    {
+        "dataset_revision": "",
+        "task_name": "CovidRetrievallChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "dev": [
+                {
+                    "ndcg_at_1": 0.6765,
+                    "ndcg_at_3": 0.75219,
+                    "ndcg_at_5": 0.77586,
+                    "ndcg_at_10": 0.79413,
+                    "ndcg_at_20": 0.80161,
+                    "map_at_1": 0.6736,
+                    "map_at_3": 0.73323,
+                    "map_at_5": 0.74674,
+                    "map_at_10": 0.75453,
+                    "map_at_20": 0.75654,
+                    "recall_at_1": 0.6736,
+                    "recall_at_3": 0.80479,
+                    "recall_at_5": 0.8617,
+                    "recall_at_10": 0.91728,
+                    "recall_at_20": 0.94731,
+                    "precision_at_1": 0.6765,
+                    "precision_at_3": 0.27011,
+                    "precision_at_5": 0.17387,
+                    "precision_at_10": 0.09273,
+                    "precision_at_20": 0.04789,
+                    "mrr_at_1": 0.6775553213909379,
+                    "mrr_at_3": 0.7363891815946614,
+                    "mrr_at_5": 0.748823322795926,
+                    "mrr_at_10": 0.7563604964289902,
+                    "mrr_at_20": 0.7582880647126213,
+                    "main_score": 0.79413,
+                    "hf_subset": "default",
+                    "languages": [
+                        "zh"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 5613.721234321594,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v3",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
     }
 ]
