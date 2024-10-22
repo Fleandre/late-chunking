@@ -15,6 +15,7 @@ from chunked_pooling import chunked_pooling
 from chunked_pooling.chunking import Chunker
 
 logger = logging.getLogger(__name__)
+MODEL_CONTEXT = 8192
 
 
 class AbsTaskChunkedRetrieval(AbsTask):
@@ -62,6 +63,8 @@ class AbsTaskChunkedRetrieval(AbsTask):
             "embedding_model_name": embedding_model_name,
         }
         self.truncate_max_length = truncate_max_length
+        self.long_late_chunking_embed_size = MODEL_CONTEXT
+        self.long_late_chunking_overlap_size = int(MODEL_CONTEXT * 0.1)
 
     def load_data(self, **kwargs):
         self.retrieval_task.load_data(**kwargs)
@@ -114,14 +117,18 @@ class AbsTaskChunkedRetrieval(AbsTask):
 
     def _truncate_documents(self, corpus):
         for k, v in corpus.items():
+            title_tokens = 0
             if "title" in v:
-                raise NotImplementedError(
-                    "Currently truncation is only implemented for documents without titles"
+                tokens = self.tokenizer(
+                    v["title"] + " ",
+                    return_offsets_mapping=True,
+                    max_length=self.truncate_max_length,
                 )
+                title_tokens = len(tokens.input_ids)
             tokens = self.tokenizer(
                 v["text"],
                 return_offsets_mapping=True,
-                max_length=self.truncate_max_length,
+                max_length=self.truncate_max_length - title_tokens,
             )
             last_token_span = tokens.offset_mapping[-2]
             v["text"] = v["text"][: last_token_span[1]]
@@ -183,8 +190,8 @@ class AbsTaskChunkedRetrieval(AbsTask):
                     text_inputs,
                     return_tensors="pt",
                     padding=True,
-                    truncation=True,
-                    max_length=8192,
+                    truncation=self.truncate_max_length is not None,
+                    max_length=self.truncate_max_length,
                 )
                 if model.device.type == "cuda":
                     model_inputs = {
@@ -195,9 +202,17 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 # token_embs = model_outputs[0]
 
                 # for sentence-transformers
-                model_outputs = model(**{"input": model_inputs})
-                token_embs = model_outputs["token_embeddings"]
-                output_embs = chunked_pooling(token_embs, annotations, max_length=8192)
+                if self.long_late_chunking_embed_size > 0:
+                    model_outputs = self._embed_with_overlap(model, model_inputs)
+                    output_embs = chunked_pooling(
+                        [model_outputs], annotations, max_length=None
+                    )
+                else:  # truncation
+                    model_outputs = model(**{"input": model_inputs})
+                    token_embs = model_outputs["token_embeddings"]
+                    output_embs = chunked_pooling(
+                        token_embs, annotations, max_length=self.truncate_max_length
+                    )
                 corpus_embs.extend(output_embs)
 
         max_chunks = max([len(x) for x in corpus_embs])
@@ -216,6 +231,38 @@ class AbsTaskChunkedRetrieval(AbsTask):
             chunk_id_list, k_values, query_ids, similarity_matrix
         )
         return results, max_k, k_values
+
+    def _embed_with_overlap(self, model, model_inputs):
+        len_tokens = len(model_inputs["input_ids"][0])
+
+        if len_tokens > self.long_late_chunking_embed_size:
+            indices = []
+            for i in range(
+                0,
+                len_tokens,
+                self.long_late_chunking_embed_size
+                - self.long_late_chunking_overlap_size,
+            ):
+                start = i
+                end = min(i + self.long_late_chunking_embed_size, len_tokens)
+                indices.append((start, end))
+        else:
+            indices = [(0, len_tokens)]
+
+        outputs = []
+        for start, end in indices:
+            batch_inputs = {k: v[:, start:end] for k, v in model_inputs.items()}
+
+            with torch.no_grad():
+                model_output = model(**{"input": batch_inputs})
+                model_output = model_output["token_embeddings"]
+
+            if start > 0:
+                outputs.append(model_output[:, self.long_late_chunking_overlap_size :])
+            else:
+                outputs.append(model_output)
+
+        return torch.cat(outputs, dim=1).to(model.device)
 
     def _evaluate_monolingual(
         self,
