@@ -1,138 +1,172 @@
 {
     "ArguAnaChunked": {
         "queries": 1406,
-        "corpus": 8674
+        "corpus": 8674,
+        "average_corpus_length": 1054.4003919760203
     },
     "ClimateFEVERChunked": {
         "queries": 1535,
-        "corpus": 5416593
+        "corpus": 5416593,
+        "average_corpus_length": 563.2428945649045
     },
     "DBPediaChunked": {
         "queries": 400,
-        "corpus": 4635922
+        "corpus": 4635922,
+        "average_corpus_length": 334.4551515318851
     },
     "FEVERChunked": {
         "queries": 6666,
-        "corpus": 5416568
+        "corpus": 5416568,
+        "average_corpus_length": 563.2350253887702
     },
     "HotpotQAChunked": {
         "queries": 7405,
-        "corpus": 5233329
+        "corpus": 5233329,
+        "average_corpus_length": 313.41980907372727
     },
     "MSMARCOChunked": {
         "queries": 43,
-        "corpus": 8841823
+        "corpus": 8841823,
+        "average_corpus_length": 363.3206596648678
     },
     "SciFactChunked": {
         "queries": 300,
-        "corpus": 5183
+        "corpus": 5183,
+        "average_corpus_length": 1523.4449160717732
     },
     "NarrativeQAChunked": {
         "queries": 10557,
-        "corpus": 355
+        "corpus": 355,
+        "average_corpus_length": 336884.54647887324
     },
     "NFCorpusChunked": {
         "queries": 323,
-        "corpus": 3633
+        "corpus": 3633,
+        "average_corpus_length": 1615.8700798238372
     },
     "QuoraChunked": {
         "queries": 10000,
-        "corpus": 522931
+        "corpus": 522931,
+        "average_corpus_length": 87.1669359819938
     },
     "FiQA2018Chunked": {
         "queries": 648,
-        "corpus": 57638
+        "corpus": 57638,
+        "average_corpus_length": 793.2596550886568
     },
     "TRECCOVIDChunked": {
         "queries": 50,
-        "corpus": 171332
+        "corpus": 171332,
+        "average_corpus_length": 1141.8361660402027
     },
     "LEMBWikimQARetrievalChunked": {
         "queries": 300,
-        "corpus": 300
+        "corpus": 300,
+        "average_corpus_length": 37782.25
     },
     "SCIDOCSChunked": {
         "queries": 1000,
-        "corpus": 25657
+        "corpus": 25657,
+        "average_corpus_length": 1229.237946759169
     },
     "Touche2020Chunked": {
         "queries": 49,
-        "corpus": 382545
+        "corpus": 382545,
+        "average_corpus_length": 1747.4889490125345
     },
     "CmedqaRetrievalChunked": {
         "queries": 3999,
-        "corpus": 100001
+        "corpus": 100001,
+        "average_corpus_length": 320.65072349276505
     },
     "CovidRetrievallChunked": {
         "queries": 949,
-        "corpus": 100001
+        "corpus": 100001,
+        "average_corpus_length": 345.34336656633434
     },
     "DuRetrievalChunked": {
         "queries": 2000,
-        "corpus": 100001
+        "corpus": 100001,
+        "average_corpus_length": 344.58154418455814
     },
     "EcomRetrievalChunked": {
         "queries": 1000,
-        "corpus": 100902
+        "corpus": 100902,
+        "average_corpus_length": 44.98580801173416
     },
     "MedicalRetrievalChunked": {
         "queries": 1000,
-        "corpus": 100999
+        "corpus": 100999,
+        "average_corpus_length": 134.39245933128052
     },
     "MMarcoRetrievalChunked": {
         "queries": 6980,
-        "corpus": 106813
+        "corpus": 106813,
+        "average_corpus_length": 126.53060020783987
     },
     "T2RetrievalChunked": {
         "queries": 22812,
-        "corpus": 118605
+        "corpus": 118605,
+        "average_corpus_length": 893.6680494076978
     },
     "VideoRetrievalChunked": {
         "queries": 1000,
-        "corpus": 100930
+        "corpus": 100930,
+        "average_corpus_length": 43.05277915386902
     },
     "CrosslingualRetrievalQasEn2ZhChunked": {
         "queries": 20000,
-        "corpus": 79955
+        "corpus": 79955,
+        "average_corpus_length": 387.36017759989994
     },
     "CrosslingualRetrievalBooksEn2ZhChunked": {
         "queries": 31172,
-        "corpus": 4614
+        "corpus": 4614,
+        "average_corpus_length": 378.30169050715216
     },
     "CrosslingualRetrievalBooksZh2EnChunked": {
         "queries": 31172,
-        "corpus": 4614
+        "corpus": 4614,
+        "average_corpus_length": 1147.933463372345
     },
     "CrosslingualRetrievalFinanceEn2ZhChunked": {
         "queries": 25045,
-        "corpus": 4668
+        "corpus": 4668,
+        "average_corpus_length": 368.95222793487574
     },
     "CrosslingualRetrievalFinanceZh2EnChunked": {
         "queries": 25020,
-        "corpus": 4668
+        "corpus": 4668,
+        "average_corpus_length": 1364.6983718937447
     },
     "CrosslingualRetrievalLawEn2ZhChunked": {
         "queries": 26642,
-        "corpus": 4899
+        "corpus": 4899,
+        "average_corpus_length": 364.0600122473974
     },
     "CrosslingualRetrievalLawZh2EnChunked": {
         "queries": 26653,
-        "corpus": 4897
+        "corpus": 4897,
+        "average_corpus_length": 1367.1208903410252
     },
     "CrosslingualRetrievalPaperEn2ZhChunked": {
         "queries": 22456,
-        "corpus": 5076
+        "corpus": 5076,
+        "average_corpus_length": 254.6197793538219
     },
     "CrosslingualRetrievalPaperZh2EnChunked": {
         "queries": 22515,
-        "corpus": 5101
+        "corpus": 5101,
+        "average_corpus_length": 770.2752401489904
     },
     "CrosslingualRetrievalWikiEn2ZhChunked": {
         "queries": 34060,
-        "corpus": 6506
+        "corpus": 6506,
+        "average_corpus_length": 408.6289578850292
     },
     "CrosslingualRetrievalWikiZh2EnChunked": {
         "queries": 34062,
-        "corpus": 6504
+        "corpus": 6504,
+        "average_corpus_length": 1306.535516605166
     }
 }
