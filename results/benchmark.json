@@ -40187,5 +40187,101 @@
         "chunk_size": 128,
         "n_sentences": 5,
         "chunking_model": null
+    },
+    {
+        "dataset_revision": "6e346642246bfb4928c560ee08640dc84d074e8c",
+        "task_name": "LEMBWikimQARetrievalChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.67333,
+                    "ndcg_at_3": 0.74432,
+                    "ndcg_at_5": 0.76627,
+                    "ndcg_at_10": 0.78133,
+                    "ndcg_at_20": 0.79816,
+                    "map_at_1": 0.67333,
+                    "map_at_3": 0.72833,
+                    "map_at_5": 0.7405,
+                    "map_at_10": 0.74669,
+                    "map_at_20": 0.7513,
+                    "recall_at_1": 0.67333,
+                    "recall_at_3": 0.79,
+                    "recall_at_5": 0.84333,
+                    "recall_at_10": 0.89,
+                    "recall_at_20": 0.95667,
+                    "precision_at_1": 0.67333,
+                    "precision_at_3": 0.26333,
+                    "precision_at_5": 0.16867,
+                    "precision_at_10": 0.089,
+                    "precision_at_20": 0.04783,
+                    "mrr_at_1": 0.6733333333333333,
+                    "mrr_at_3": 0.7283333333333334,
+                    "mrr_at_5": 0.7404999999999998,
+                    "mrr_at_10": 0.7466931216931215,
+                    "mrr_at_20": 0.7512987343467219,
+                    "main_score": 0.78133,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 79.3318943977356,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v3",
+        "chunking_strategy": "late_chunking",
+        "chunk_size": 128,
+        "n_sentences": 5,
+        "chunking_model": null
+    },
+    {
+        "dataset_revision": "6e346642246bfb4928c560ee08640dc84d074e8c",
+        "task_name": "LEMBWikimQARetrievalChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.97333,
+                    "ndcg_at_3": 0.97964,
+                    "ndcg_at_5": 0.97964,
+                    "ndcg_at_10": 0.98202,
+                    "ndcg_at_20": 0.98202,
+                    "map_at_1": 0.97333,
+                    "map_at_3": 0.97833,
+                    "map_at_5": 0.97833,
+                    "map_at_10": 0.97944,
+                    "map_at_20": 0.97944,
+                    "recall_at_1": 0.97333,
+                    "recall_at_3": 0.98333,
+                    "recall_at_5": 0.98333,
+                    "recall_at_10": 0.99,
+                    "recall_at_20": 0.99,
+                    "precision_at_1": 0.97333,
+                    "precision_at_3": 0.32778,
+                    "precision_at_5": 0.19667,
+                    "precision_at_10": 0.099,
+                    "precision_at_20": 0.0495,
+                    "mrr_at_1": 0.9733333333333334,
+                    "mrr_at_3": 0.9783333333333334,
+                    "mrr_at_5": 0.9783333333333334,
+                    "mrr_at_10": 0.9794444444444446,
+                    "mrr_at_20": 0.9794444444444446,
+                    "main_score": 0.98202,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 118.39648485183716,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v2-base-zh",
+        "chunking_strategy": "late_chunking",
+        "chunk_size": 128,
+        "n_sentences": 5,
+        "chunking_model": null
     }
 ]
