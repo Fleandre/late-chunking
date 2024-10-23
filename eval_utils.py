@@ -28,6 +28,9 @@ def filter_tasks(task_name_to_cls):
         if total > TASK_SKIP_THRESHOLD:
             continue
 
+        if "Narrative" in task_name:
+            continue
+
         to_be_evaluate.append(task_name)
     return to_be_evaluate
 
