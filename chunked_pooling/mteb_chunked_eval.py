@@ -205,7 +205,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                 if self.long_late_chunking_embed_size > 0:
                     model_outputs = self._embed_with_overlap(model, model_inputs)
                     output_embs = chunked_pooling(
-                        [model_outputs], annotations, max_length=None
+                        model_outputs, annotations, max_length=None
                     )
                 else:  # truncation
                     model_outputs = model(**{"input": model_inputs})
