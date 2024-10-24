@@ -1,3 +1,6 @@
+import sys
+
+sys.setrecursionlimit(65535)
 import json
 import torch.cuda
 from mteb import MTEB
