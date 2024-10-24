@@ -39002,5 +39002,240 @@
         "chunk_size": 128,
         "n_sentences": 5,
         "chunking_model": null
+    },
+    {
+        "dataset_revision": "6e346642246bfb4928c560ee08640dc84d074e8c",
+        "task_name": "LEMBWikimQARetrievalChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.94,
+                    "ndcg_at_3": 0.95929,
+                    "ndcg_at_5": 0.96072,
+                    "ndcg_at_10": 0.96072,
+                    "ndcg_at_20": 0.96072,
+                    "map_at_1": 0.94,
+                    "map_at_3": 0.95444,
+                    "map_at_5": 0.95528,
+                    "map_at_10": 0.95528,
+                    "map_at_20": 0.95528,
+                    "recall_at_1": 0.94,
+                    "recall_at_3": 0.97333,
+                    "recall_at_5": 0.97667,
+                    "recall_at_10": 0.97667,
+                    "recall_at_20": 0.97667,
+                    "precision_at_1": 0.94,
+                    "precision_at_3": 0.32444,
+                    "precision_at_5": 0.19533,
+                    "precision_at_10": 0.09767,
+                    "precision_at_20": 0.04883,
+                    "mrr_at_1": 0.94,
+                    "mrr_at_3": 0.9522222222222221,
+                    "mrr_at_5": 0.9530555555555554,
+                    "mrr_at_10": 0.9536111111111111,
+                    "mrr_at_20": 0.9536111111111111,
+                    "main_score": 0.96072,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 537.5119080543518,
+        "kg_co2_emissions": null,
+        "model_name": "BAAI/bge-m3",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
+    },
+    {
+        "dataset_revision": "0228b52cf27578f30900b9e5271d331663a030d7",
+        "task_name": "SciFactChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.58667,
+                    "ndcg_at_3": 0.67349,
+                    "ndcg_at_5": 0.69225,
+                    "ndcg_at_10": 0.70882,
+                    "ndcg_at_20": 0.72546,
+                    "map_at_1": 0.56189,
+                    "map_at_3": 0.64348,
+                    "map_at_5": 0.65651,
+                    "map_at_10": 0.66486,
+                    "map_at_20": 0.67014,
+                    "recall_at_1": 0.56189,
+                    "recall_at_3": 0.73422,
+                    "recall_at_5": 0.78028,
+                    "recall_at_10": 0.82789,
+                    "recall_at_20": 0.89033,
+                    "precision_at_1": 0.58667,
+                    "precision_at_3": 0.26444,
+                    "precision_at_5": 0.17267,
+                    "precision_at_10": 0.093,
+                    "precision_at_20": 0.0505,
+                    "mrr_at_1": 0.5866666666666667,
+                    "mrr_at_3": 0.6611111111111111,
+                    "mrr_at_5": 0.6717777777777777,
+                    "mrr_at_10": 0.6765912698412697,
+                    "mrr_at_20": 0.6803229234645642,
+                    "main_score": 0.70882,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 454.1128888130188,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v3",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
+    },
+    {
+        "dataset_revision": "6e346642246bfb4928c560ee08640dc84d074e8c",
+        "task_name": "LEMBWikimQARetrievalChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.91333,
+                    "ndcg_at_3": 0.9377,
+                    "ndcg_at_5": 0.9377,
+                    "ndcg_at_10": 0.94513,
+                    "ndcg_at_20": 0.94687,
+                    "map_at_1": 0.91333,
+                    "map_at_3": 0.93222,
+                    "map_at_5": 0.93222,
+                    "map_at_10": 0.93522,
+                    "map_at_20": 0.93573,
+                    "recall_at_1": 0.91333,
+                    "recall_at_3": 0.95333,
+                    "recall_at_5": 0.95333,
+                    "recall_at_10": 0.97667,
+                    "recall_at_20": 0.98333,
+                    "precision_at_1": 0.91333,
+                    "precision_at_3": 0.31778,
+                    "precision_at_5": 0.19067,
+                    "precision_at_10": 0.09767,
+                    "precision_at_20": 0.04917,
+                    "mrr_at_1": 0.9133333333333333,
+                    "mrr_at_3": 0.9322222222222223,
+                    "mrr_at_5": 0.9322222222222223,
+                    "mrr_at_10": 0.9352208994708995,
+                    "mrr_at_20": 0.9357322631072629,
+                    "main_score": 0.94513,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 217.88121891021729,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v2-base-zh",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
+    },
+    {
+        "dataset_revision": "ec0fa4fe99da2ff19ca1214b7966684033a58814",
+        "task_name": "NFCorpusChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.36223,
+                    "ndcg_at_3": 0.32159,
+                    "ndcg_at_5": 0.29878,
+                    "ndcg_at_10": 0.26466,
+                    "map_at_1": 0.04468,
+                    "map_at_3": 0.0755,
+                    "map_at_5": 0.08658,
+                    "map_at_10": 0.09903,
+                    "recall_at_1": 0.04468,
+                    "recall_at_3": 0.08603,
+                    "recall_at_5": 0.10397,
+                    "recall_at_10": 0.12732,
+                    "precision_at_1": 0.37771,
+                    "precision_at_3": 0.30341,
+                    "precision_at_5": 0.25635,
+                    "precision_at_10": 0.18916,
+                    "mrr_at_1": 0.38080495356037153,
+                    "mrr_at_3": 0.4437564499484005,
+                    "mrr_at_5": 0.45304437564499495,
+                    "mrr_at_10": 0.4578750798565041,
+                    "main_score": 0.26466,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 379.1891417503357,
+        "kg_co2_emissions": null,
+        "model_name": "BAAI/bge-m3",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
+    },
+    {
+        "dataset_revision": "",
+        "task_name": "SCIDOCSChunked",
+        "mteb_version": "1.14.20",
+        "scores": {
+            "test": [
+                {
+                    "ndcg_at_1": 0.21,
+                    "ndcg_at_3": 0.16769,
+                    "ndcg_at_5": 0.14351,
+                    "ndcg_at_10": 0.17239,
+                    "ndcg_at_20": 0.19599,
+                    "map_at_1": 0.04258,
+                    "map_at_3": 0.07427,
+                    "map_at_5": 0.08705,
+                    "map_at_10": 0.1009,
+                    "map_at_20": 0.109,
+                    "recall_at_1": 0.04258,
+                    "recall_at_3": 0.09493,
+                    "recall_at_5": 0.12553,
+                    "recall_at_10": 0.17838,
+                    "recall_at_20": 0.23372,
+                    "precision_at_1": 0.21,
+                    "precision_at_3": 0.156,
+                    "precision_at_5": 0.1238,
+                    "precision_at_10": 0.088,
+                    "precision_at_20": 0.05765,
+                    "mrr_at_1": 0.209,
+                    "mrr_at_3": 0.2771666666666667,
+                    "mrr_at_5": 0.2930166666666666,
+                    "mrr_at_10": 0.3070623015873014,
+                    "mrr_at_20": 0.3132782720289685,
+                    "main_score": 0.17239,
+                    "hf_subset": "default",
+                    "languages": [
+                        "eng-Latn"
+                    ]
+                }
+            ]
+        },
+        "evaluation_time": 733.9690601825714,
+        "kg_co2_emissions": null,
+        "model_name": "jinaai/jina-embeddings-v2-base-zh",
+        "chunking_strategy": "semantic_langchain",
+        "chunk_size": -1,
+        "n_sentences": 5,
+        "chunking_model": null
     }
 ]
