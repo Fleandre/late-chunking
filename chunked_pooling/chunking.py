@@ -26,16 +26,14 @@ CHUNKING_STRATEGIES = [
 
 
 class Chunker:
-    def __init__(
-        self,
-        chunking_strategy: str,
-    ):
+    def __init__(self, chunking_strategy: str, truncate_max_length: None):
         if chunking_strategy not in CHUNKING_STRATEGIES:
             raise ValueError("Unsupported chunking strategy: ", chunking_strategy)
         self.chunking_strategy = chunking_strategy
         self.llama_embed_model = None
         self.langchain_embed_model = None
         self.embedding_model_name = None
+        self.truncate_max_length = truncate_max_length
 
     def _setup_semantic_chunking(self, embedding_model_name):
         if embedding_model_name:
@@ -141,7 +139,28 @@ class Chunker:
         if self.langchain_embed_model is None:
             self._setup_semantic_chunking(embedding_model_name)
 
-        text_chunks = self.langchain_splitter.split_text(text)
+        def recursive_split(to_split):
+            # 递归切分文本，直到所有文本块的token数都小于阈值
+            text_chunks = self.langchain_splitter.split_text(to_split)
+            if len(text_chunks) == 1:
+                return [to_split]
+
+            result_chunks = []
+
+            for chunk in text_chunks:
+                if (
+                    len(tokenizer.encode(chunk, add_special_tokens=True))
+                    > self.truncate_max_length
+                ):
+
+                    # 递归切分当前块
+                    result_chunks.extend(recursive_split(chunk))
+                else:
+                    result_chunks.append(chunk)
+
+            return result_chunks
+
+        text_chunks = recursive_split(text)
 
         chunk_spans_by_char = []
         idx = 0

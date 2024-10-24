@@ -25,10 +25,26 @@ def filter_tasks(task_name_to_cls):
 
         total = num_queries + num_corpus
 
+        # 总数太多跑不完
         if total > TASK_SKIP_THRESHOLD:
             continue
 
+        # 这个家伙context有336k
         if "Narrative" in task_name:
+            continue
+
+        # 需要重新测一下semantic
+        if task_name not in [
+            "SciFactChunked",
+            "NFCorpusChunked",
+            "FiQA2018Chunked",
+            "LEMBWikimQARetrievalChunked",
+            "SCIDOCSChunked",
+            "CmedqaRetrievalChunked",
+            "CovidRetrievallChunked",
+            "DuRetrievalChunked",
+            "T2RetrievalChunked",
+        ]:
             continue
 
         to_be_evaluate.append(task_name)

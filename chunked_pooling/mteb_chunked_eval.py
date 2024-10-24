@@ -53,7 +53,7 @@ class AbsTaskChunkedRetrieval(AbsTask):
                     "Could not initialize retrieval_task from Netease CrossLangRetrieval. Please make sure that the task name is correct."
                 )
         self.chunking_strategy = chunking_strategy
-        self.chunker = Chunker(self.chunking_strategy)
+        self.chunker = Chunker(self.chunking_strategy, MODEL_CONTEXT)
         self.tokenizer = tokenizer
         self.prune_size = prune_size
         self.model_has_instructions = model_has_instructions
